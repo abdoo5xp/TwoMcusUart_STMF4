@@ -30,9 +30,9 @@
 //#include <stdio.h>
 //#include <stdlib.h>
 //#include "diag/Trace.h"
-#include "../../Esraa_Lib/Std_Types.h"
-#include "../../Esraa_Lib/bit.h"
-#include "../../lib/Bit_Mask.h"
+#include "../../../Esraa_Lib/Std_Types.h"
+#include "../../../Esraa_Lib/bit.h"
+#include "../../../lib/Bit_Mask.h"
 #include "Error_codes.h"
 #include "NVIC_int.h"
 #include "GPIO.h"
