@@ -5,14 +5,15 @@
  *      Author: abdoo
  */
 
-
-#include "../../../lib/Bit_Mask.h"
-#include "../../../lib/Bit_Math.h"
-#include "../../../lib/Error_codes.h"
+#include <stdint.h>
+#include "Bit_Mask.h"
+#include "Bit_Math.h"
+#include "Error_codes.h"
+#include "GPIO.h"
 #include "led.h"
 #include "led_types.h"
 #include "led_cfg.h"
-#include "GPIO.h"
+
 
 
 const led_t led_arr[LEDS_COUNT] = {
@@ -39,5 +40,17 @@ const led_t led_arr[LEDS_COUNT] = {
 					.AF      = GPIO_AF0_SYSTEM
 			},
 			.ledStatus = LED_ACTIVE_HIGH
-	}
+	},
+	[LED_ZAR2A]={
+				.ledPin = {
+						.port    = GPIO_PORTD,
+						.pinNum  = GPIO_PIN_15,
+						.mode	 = GPIO_MODE_OUTPUT,
+						.otype   = GPIO_OTYPE_PUSH_PULL,
+						.ospeed  = GPIO_OSPEED_MED,
+						.pupd    = GPIO_NO_PULL,
+						.AF      = GPIO_AF0_SYSTEM
+				},
+				.ledStatus = LED_ACTIVE_HIGH
+		}
 };

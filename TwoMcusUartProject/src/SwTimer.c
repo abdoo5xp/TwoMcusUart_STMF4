@@ -6,11 +6,10 @@
  */
 
 #include <stdint.h>
-#include "../../Esraa_Lib/Std_Types.h"
-#include "../../Esraa_Lib/bit.h"
-#include "../../lib/Bit_Mask.h"
-#include "../../lib/Bit_Math.h"
-#include "../../lib/Error_codes.h"
+#include "bit.h"
+#include "Bit_Mask.h"
+#include "Bit_Math.h"
+#include "Error_codes.h"
 #include "SysTick_int.h"
 #include "SwTimer.h"
 

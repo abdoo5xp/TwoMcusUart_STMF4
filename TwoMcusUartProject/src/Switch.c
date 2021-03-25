@@ -7,9 +7,9 @@
 
 
 #include <stdint.h>
-#include "../../lib/Bit_Mask.h"
-#include "../../lib/Bit_Math.h"
-#include "../../lib/Error_codes.h"
+#include "Bit_Mask.h"
+#include "Bit_Math.h"
+#include "Error_codes.h"
 #include "GPIO.h"
 #include "SwTimer.h"
 #include "Switch.h"

@@ -23,10 +23,10 @@ typedef void (*CallBackPointer) (void);
 
 static CallBackPointer App_Notify;
 
-void SysTick_init(defined_uint32_t freq);
-defined_uint8_t SysTick_SetTime_ms(defined_uint32_t ticks);
+void SysTick_init(uint32_t freq);
+uint8_t SysTick_SetTime_ms(uint32_t ticks);
 void SysTick_Start();
 void SysTick_Stop();
-defined_uint8_t SysTick_SetCallBack(CallBackPointer ptr_fun);
+uint8_t SysTick_SetCallBack(CallBackPointer ptr_fun);
 
 #endif /* SYSTICK_INT_H_ */

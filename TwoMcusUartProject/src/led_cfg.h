@@ -9,7 +9,7 @@
 #define LED_CFG_H_
 
 
-#define LEDS_COUNT 					2
+#define LEDS_COUNT 					4
 
 #define LED_ALRAM	                0
 #define LED_7AMRA	                1

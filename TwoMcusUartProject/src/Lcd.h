@@ -62,7 +62,7 @@ typedef enum{
  * Input/Output Parameters:
  * 					-Not Applicable (void)
  * ***************************************************************************************************************/
-void LCD_Init(void);
+extern void LCD_Init(void);
 
 /**************************************************************************************************************
  * Public Function: LCD_GoTo
@@ -79,7 +79,7 @@ void LCD_Init(void);
  * Input/Output Parameters:
  * 					-Not Applicable (void)
  * ***************************************************************************************************************/
-uint8_t LCD_GoTo(lcd_rows_e Row, uint8_t Col);
+extern uint8_t LCD_GoTo(lcd_rows_e Row, uint8_t Col);
 
 /**************************************************************************************************************
  * Public Function: LCD_WriteString
@@ -95,7 +95,7 @@ uint8_t LCD_GoTo(lcd_rows_e Row, uint8_t Col);
  * Input/Output Parameters:
  * 					-Not Applicable (void)
  * ***************************************************************************************************************/
-uint8_t LCD_WriteString( uint8_t *String);
+extern uint8_t LCD_WriteString( uint8_t *String);
 
 /**************************************************************************************************************
  * Public Function: LCD_SaveCustomCharacter
@@ -116,7 +116,7 @@ uint8_t LCD_WriteString( uint8_t *String);
  * Input/Output Parameters:
  * 					-Not Applicable (void)
  * ***************************************************************************************************************/
-uint8_t LCD_SaveCustomCharacter(uint8_t CharIdx,uint8_t * CharData);
+extern uint8_t LCD_SaveCustomCharacter(uint8_t CharIdx,uint8_t * CharData);
 
 /**************************************************************************************************************
  * Public Function: LCD_PrintCustomCharacter
@@ -134,6 +134,8 @@ uint8_t LCD_SaveCustomCharacter(uint8_t CharIdx,uint8_t * CharData);
  * Input/Output Parameters:
  * 					-Not Applicable (void)
  * ***************************************************************************************************************/
-uint8_t LCD_PrintCustomCharacter(uint8_t CharIdx);
+extern uint8_t LCD_PrintCustomCharacter(uint8_t CharIdx);
+
+extern uint8_t LCD_WriteCommand(uint8_t LCD_CMD);
 
 #endif /* LCD_H_ */

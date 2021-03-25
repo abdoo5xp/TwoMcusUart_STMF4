@@ -5,9 +5,10 @@
  *      Author: abdoo
  */
 #include <stdint.h>
+#include <diag/Trace.h>
 #include "Error_codes.h"
-#include "../../lib/Bit_Mask.h"
-#include "../../lib/Bit_Math.h"
+#include "Bit_Mask.h"
+#include "Bit_Math.h"
 #include "SwTimer.h"
 #include "Uart.h"
 #include "Uart_cfg.h"
@@ -87,7 +88,7 @@ static void Uart_SendData(usart_Id_e usartId,uint8_t data)
 {
 	/* Set the data in the register to be sent on the line ,
 	 * we have to cast it here because the register is word or half word accessible only */
-	 trace_printf("data = %d",data);
+	// trace_printf("data = %d",data);
 	((volatile usart_t *)usart_instances[usartId].usartAddress)->DR = (uint32_t )data;
 }
 
@@ -96,7 +97,7 @@ static void Uart_RecvData(usart_Id_e usartId,uint8_t *data)
 	/* Set the data in the register to be sent on the line ,
 	 * we have to cast it here because the register is word or half word accessible only */
 	 *data = (uint8_t)((volatile usart_t *)usart_instances[usartId]. usartAddress)->DR ;
-	 trace_printf("data = %d",*data);
+	// trace_printf("data = %d",*data);
 }
 
 /************************************************ API Functions Implementation ************************************************************/

@@ -16,5 +16,5 @@
 #define RT_PARAM		1
 /*Function successfully executed */
 #define RT_SUCCESS		0
-
+#define NULL 			(void*)0
 #endif /* ERROR_CODES_H_ */

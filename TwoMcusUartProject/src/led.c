@@ -5,13 +5,15 @@
  *      Author: abdoo
  */
 
-#include "../../../lib/Bit_Mask.h"
-#include "../../../lib/Bit_Math.h"
-#include "../../../lib/Error_codes.h"
+#include <stdint.h>
+#include "Bit_Mask.h"
+#include "Bit_Math.h"
+#include "Error_codes.h"
+#include "GPIO.h"
 #include "led_types.h"
 #include "led.h"
 #include "led_cfg.h"
-#include "GPIO.h"
+
 
 extern const led_t led_arr[LEDS_COUNT];
 

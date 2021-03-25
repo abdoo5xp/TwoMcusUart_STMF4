@@ -4,41 +4,77 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../src/App.c \
+../src/Frame.c \
+../src/Frame_cfg.c \
 ../src/GPIO.c \
+../src/Hal_Uart.c \
+../src/Hal_Uart_cfg.c \
+../src/Lcd.c \
+../src/Lcd_cfg.c \
 ../src/NVIC.c \
 ../src/Rcc.c \
 ../src/SwTimer.c \
+../src/Switch.c \
+../src/Switch_cfg.c \
 ../src/SysTick.c \
 ../src/Uart.c \
 ../src/Uart_cfg.c \
 ../src/_initialize_hardware.c \
 ../src/_write.c \
+../src/clock.c \
+../src/led.c \
+../src/led_cfg.c \
 ../src/main.c \
 ../src/stm32f4xx_hal_msp.c 
 
 OBJS += \
+./src/App.o \
+./src/Frame.o \
+./src/Frame_cfg.o \
 ./src/GPIO.o \
+./src/Hal_Uart.o \
+./src/Hal_Uart_cfg.o \
+./src/Lcd.o \
+./src/Lcd_cfg.o \
 ./src/NVIC.o \
 ./src/Rcc.o \
 ./src/SwTimer.o \
+./src/Switch.o \
+./src/Switch_cfg.o \
 ./src/SysTick.o \
 ./src/Uart.o \
 ./src/Uart_cfg.o \
 ./src/_initialize_hardware.o \
 ./src/_write.o \
+./src/clock.o \
+./src/led.o \
+./src/led_cfg.o \
 ./src/main.o \
 ./src/stm32f4xx_hal_msp.o 
 
 C_DEPS += \
+./src/App.d \
+./src/Frame.d \
+./src/Frame_cfg.d \
 ./src/GPIO.d \
+./src/Hal_Uart.d \
+./src/Hal_Uart_cfg.d \
+./src/Lcd.d \
+./src/Lcd_cfg.d \
 ./src/NVIC.d \
 ./src/Rcc.d \
 ./src/SwTimer.d \
+./src/Switch.d \
+./src/Switch_cfg.d \
 ./src/SysTick.d \
 ./src/Uart.d \
 ./src/Uart_cfg.d \
 ./src/_initialize_hardware.d \
 ./src/_write.d \
+./src/clock.d \
+./src/led.d \
+./src/led_cfg.d \
 ./src/main.d \
 ./src/stm32f4xx_hal_msp.d 
 

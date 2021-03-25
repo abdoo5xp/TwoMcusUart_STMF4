@@ -71,7 +71,7 @@ usart_config_t usart_instances[_usart_Id_Length_] = {
 			.rxEnable          = usartEnable,
 			.txDmaEnable       = usartDisable,
 			.rxDmaEnable       = usartDisable,
-			.usartBaudRate	   = USART_BRR_FPCK_42_115200,
+			.usartBaudRate	   = USART_BRR_FPCK_42_9600,
 
 			/*will get into the interrupt once the controller is up because
 			 * the tx send buffer is empty, so use txc */

@@ -8,10 +8,12 @@
 #ifndef APP_H_
 #define APP_H_
 
+#define DATA_BYTES_NUM 7
 
-void App_Init(void);
 
-uint8_t App_DispAll(App_Data_t * data);
+extern void App_Init(void);
+
+extern void App_main(void);
 
 
 #endif /* APP_H_ */

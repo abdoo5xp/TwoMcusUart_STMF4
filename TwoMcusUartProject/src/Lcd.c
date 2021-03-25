@@ -6,10 +6,12 @@
  */
 
 #include <stdint.h>
-#include "../../../lib/Bit_Mask.h"
-#include "../../../lib/Bit_Math.h"
+#include "bit.h"
+#include "Bit_Mask.h"
+#include "Bit_Math.h"
 #include "Error_codes.h"
 #include "SwTimer.h"
+#include "Rcc_int.h"
 #include "GPIO.h"
 #include "Lcd.h"
 #include "Lcd_cfg.h"
@@ -241,7 +243,7 @@ static uint8_t LCD_SendPacket(uint8_t Data,uint32_t DataType){
 void LCD_Init(void)
 {
 	uint8_t lcdPinIdx;
-
+	Enable_RCC_AHB1_PERI(RCC_AHB1_PERI_GPIOEEN);
 	for(lcdPinIdx = 0 ;lcdPinIdx < (LCD_u8MODE + 3)  ; lcdPinIdx++)
 	{
 		GPIO_InitPin(&lcdPins[lcdPinIdx]);
@@ -374,6 +376,11 @@ uint8_t LCD_PrintCustomCharacter(uint8_t CharIdx){
 	return LCD_RegisterByte(CharIdx,IS_DATA);
 }
 
-
+uint8_t LCD_WriteCommand(uint8_t LCD_CMD)
+{
+	uint8_t state;
+	state = LCD_RegisterByte(LCD_CMD,IS_CMD);
+	return state;
+}
 
 

@@ -6,7 +6,7 @@
  */
 
 #include <stdint.h>
-#include "../../Esraa_Lib/bit.h"
+#include "bit.h"
 #include "NVIC_int.h"
 
 typedef struct {
