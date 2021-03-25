@@ -5,8 +5,8 @@
  *      Author: Esraa Abdelnaby
  */
 
-#include "../../Esraa_Lib/Std_Types.h"
-#include "../../Esraa_Lib/bit.h"
+#include <stdint.h>
+#include "../../Lib/bit.h"
 #include <diag/Trace.h>
 #include "SysTick_cfg.h"
 #include "SysTick_int.h"
@@ -14,18 +14,18 @@
 
 
 typedef struct{
-	defined_uint32_t STK_CTRL;
-	defined_uint32_t STK_LOAD;
-	defined_uint32_t STK_VAL;
-	defined_uint32_t STK_CALIB;
+	uint32_t STK_CTRL;
+	uint32_t STK_LOAD;
+	uint32_t STK_VAL;
+	uint32_t STK_CALIB;
 }SysTick_Type;
 
 volatile SysTick_Type * SysTick =(volatile SysTick_Type*)(0xE000E010);
-defined_uint32_t global_freq;
+uint32_t global_freq;
 
-void SysTick_init(defined_uint32_t freq)
+void SysTick_init(uint32_t freq)
 {
-	defined_uint32_t temp_reg;
+	uint32_t temp_reg;
 	global_freq = freq;
 
 	/*reset control register*/
@@ -72,11 +72,11 @@ void SysTick_Stop()
 	SysTick->STK_CTRL &= STK_CTRL_DISABLE;
 }
 
-defined_uint8_t SysTick_SetTime_ms(defined_uint32_t ms)
+uint8_t SysTick_SetTime_ms(uint32_t ms)
 {
-	defined_uint32_t time;
-	defined_uint32_t ticks;
-	defined_uint8_t state;
+	uint32_t time;
+	uint32_t ticks;
+	uint8_t state;
 
 //	time = (1.0/global_freq)*1000;
 //
@@ -90,9 +90,9 @@ defined_uint8_t SysTick_SetTime_ms(defined_uint32_t ms)
 	return state;
 }
 
-defined_uint8_t SysTick_SetCallBack(CallBackPointer ptr_fun)
+uint8_t SysTick_SetCallBack(CallBackPointer ptr_fun)
 {
-	defined_uint8_t state=FAILURE;
+	uint8_t state=FAILURE;
 	if(ptr_fun)
 	{
 		App_Notify = ptr_fun;

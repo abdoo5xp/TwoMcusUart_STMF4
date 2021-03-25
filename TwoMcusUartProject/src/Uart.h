@@ -10,12 +10,12 @@
 
 
 typedef enum {
-//	usart_1,
+	usart_1,
 	usart_2,
-//	usart_3,
-//	uart_4 ,
-//	uart_5 ,
-//	usart_6,
+	usart_3,
+	uart_4 ,
+	uart_5 ,
+	usart_6,
 	_usart_Id_Length_
 }usart_Id_e;
 

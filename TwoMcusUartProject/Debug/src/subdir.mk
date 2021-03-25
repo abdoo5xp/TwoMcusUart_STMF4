@@ -4,7 +4,12 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+../src/App.c \
+../src/Frame.c \
+../src/Frame_cfg.c \
 ../src/GPIO.c \
+../src/Hal_Uart.c \
+../src/Hal_Uart_cfg.c \
 ../src/NVIC.c \
 ../src/Rcc.c \
 ../src/SwTimer.c \
@@ -17,7 +22,12 @@ C_SRCS += \
 ../src/stm32f4xx_hal_msp.c 
 
 OBJS += \
+./src/App.o \
+./src/Frame.o \
+./src/Frame_cfg.o \
 ./src/GPIO.o \
+./src/Hal_Uart.o \
+./src/Hal_Uart_cfg.o \
 ./src/NVIC.o \
 ./src/Rcc.o \
 ./src/SwTimer.o \
@@ -30,7 +40,12 @@ OBJS += \
 ./src/stm32f4xx_hal_msp.o 
 
 C_DEPS += \
+./src/App.d \
+./src/Frame.d \
+./src/Frame_cfg.d \
 ./src/GPIO.d \
+./src/Hal_Uart.d \
+./src/Hal_Uart_cfg.d \
 ./src/NVIC.d \
 ./src/Rcc.d \
 ./src/SwTimer.d \

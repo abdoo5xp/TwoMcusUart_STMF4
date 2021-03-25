@@ -5,59 +5,59 @@
  *      Author: Esraa Abdelnaby
  */
 
-#include "../../Esraa_Lib/Std_Types.h"
-#include "../../Esraa_Lib/bit.h"
+#include <stdint.h>
 #include "diag/Trace.h"
+#include "../../Lib/bit.h"
 #include "Rcc_int.h"
 
 typedef struct
 {
-	defined_uint32_t RCC_CR         ; //1
-	defined_uint32_t RCC_PLLCFGR 	 ; //2
-	defined_uint32_t RCC_CFGR       ; //3
-	defined_uint32_t RCC_CIR        ; //4
-	defined_uint32_t RCC_AHB1RSTR	 ; //5
-	defined_uint32_t RCC_AHB2RSTR	 ; //6
-	defined_uint32_t RCC_AHB3RSTR	 ; //7
-	defined_uint32_t RCC_Reserved1	 ; //8
-	defined_uint32_t RCC_APB1RSTR	 ; //9
-	defined_uint32_t RCC_APB2RSTR	 ; //10
-	defined_uint32_t RCC_Reserved2	 ; //11
-	defined_uint32_t RCC_Reserved3	 ; //12
-	defined_uint32_t RCC_AHB1ENR    ;
-	defined_uint32_t RCC_AHB2ENR    ;
-	defined_uint32_t RCC_AHB3ENR    ;
-	defined_uint32_t RCC_Reserved4	 ;
-	defined_uint32_t RCC_APB1ENR    ;
-	defined_uint32_t RCC_APB2ENR    ;
-	defined_uint32_t RCC_Reserved5	 ;
-	defined_uint32_t RCC_Reserved6	 ;
-	defined_uint32_t RCC_AHB1LPENR	 ;
-	defined_uint32_t RCC_AHB2LPENR	 ;
-	defined_uint32_t RCC_AHB3LPENR	 ;
-	defined_uint32_t RCC_Reserved7	 ;
-	defined_uint32_t RCC_APB1LPENR	 ;
-	defined_uint32_t RCC_APB2LPENR	 ;
-	defined_uint32_t RCC_Reserved8	 ;
-	defined_uint32_t RCC_Reserved9	 ;
-	defined_uint32_t RCC_BDCR		 ;
-	defined_uint32_t RCC_CSR		 ;
-	defined_uint32_t RCC_Reserved10 ;
-	defined_uint32_t RCC_Reserved11 ;
-	defined_uint32_t RCC_SSCGR		 ;
-	defined_uint32_t RCC_PLLI2SCFGR ;
+	uint32_t RCC_CR         ; //1
+	uint32_t RCC_PLLCFGR 	 ; //2
+	uint32_t RCC_CFGR       ; //3
+	uint32_t RCC_CIR        ; //4
+	uint32_t RCC_AHB1RSTR	 ; //5
+	uint32_t RCC_AHB2RSTR	 ; //6
+	uint32_t RCC_AHB3RSTR	 ; //7
+	uint32_t RCC_Reserved1	 ; //8
+	uint32_t RCC_APB1RSTR	 ; //9
+	uint32_t RCC_APB2RSTR	 ; //10
+	uint32_t RCC_Reserved2	 ; //11
+	uint32_t RCC_Reserved3	 ; //12
+	uint32_t RCC_AHB1ENR    ;
+	uint32_t RCC_AHB2ENR    ;
+	uint32_t RCC_AHB3ENR    ;
+	uint32_t RCC_Reserved4	 ;
+	uint32_t RCC_APB1ENR    ;
+	uint32_t RCC_APB2ENR    ;
+	uint32_t RCC_Reserved5	 ;
+	uint32_t RCC_Reserved6	 ;
+	uint32_t RCC_AHB1LPENR	 ;
+	uint32_t RCC_AHB2LPENR	 ;
+	uint32_t RCC_AHB3LPENR	 ;
+	uint32_t RCC_Reserved7	 ;
+	uint32_t RCC_APB1LPENR	 ;
+	uint32_t RCC_APB2LPENR	 ;
+	uint32_t RCC_Reserved8	 ;
+	uint32_t RCC_Reserved9	 ;
+	uint32_t RCC_BDCR		 ;
+	uint32_t RCC_CSR		 ;
+	uint32_t RCC_Reserved10 ;
+	uint32_t RCC_Reserved11 ;
+	uint32_t RCC_SSCGR		 ;
+	uint32_t RCC_PLLI2SCFGR ;
 }RCC_Register;
 
 volatile RCC_Register *RCC = (RCC_Register *)0x40023800;
 
-defined_uint32_t pll_clk = 168000000;
+uint32_t pll_clk = 168000000;
 
-defined_uint8_t Enable_RCC_CR_clk(defined_uint32_t RCC_CR_clkOn)
+uint8_t Enable_RCC_CR_clk(uint32_t RCC_CR_clkOn)
 {
-	defined_uint8_t enable_state = FAILURE;
-	defined_uint8_t clk = 1 ;
-	defined_uint32_t time_out=(0x33);
-	defined_uint32_t counter = 0;
+	uint8_t enable_state = FAILURE;
+	uint8_t clk = 1 ;
+	uint32_t time_out=(0x33);
+	uint32_t counter = 0;
 	if ((RCC_CR_clkOn & (BIT_0|BIT_24)) == (BIT_0|BIT_24)) clk=4;
 	else if ((RCC_CR_clkOn & (BIT_16|BIT_24)) == (BIT_16|BIT_24)) clk=6;
 	else if (RCC_CR_clkOn & BIT_0) clk=1;
@@ -184,11 +184,11 @@ defined_uint8_t Enable_RCC_CR_clk(defined_uint32_t RCC_CR_clkOn)
 	return enable_state;
 }
 
-defined_uint8_t Disable_RCC_CR_clk(defined_uint32_t RCC_CR_clkClear)
+uint8_t Disable_RCC_CR_clk(uint32_t RCC_CR_clkClear)
 {
-	defined_uint8_t disable_state = FAILURE;
-	defined_uint8_t clk=1;
-	defined_uint32_t time_out=(0x21);
+	uint8_t disable_state = FAILURE;
+	uint8_t clk=1;
+	uint32_t time_out=(0x21);
 
 	if (RCC_CR_clkClear == BIT_0_CLEAR) clk=1;
 	else if (RCC_CR_clkClear == BIT_16_CLEAR) clk=2;
@@ -293,10 +293,10 @@ defined_uint8_t Disable_RCC_CR_clk(defined_uint32_t RCC_CR_clkClear)
 	return disable_state;
 }
 
-defined_uint8_t Select_SysClk_RCC_CFGR_SW(defined_uint32_t SYSCLK_SWS_clk)
+uint8_t Select_SysClk_RCC_CFGR_SW(uint32_t SYSCLK_SWS_clk)
 {
-	defined_uint8_t selection_state = FAILURE;
-	defined_uint32_t temp_reg;
+	uint8_t selection_state = FAILURE;
+	uint32_t temp_reg;
 	switch(SYSCLK_SWS_clk)
 	{
 
@@ -345,11 +345,11 @@ defined_uint8_t Select_SysClk_RCC_CFGR_SW(defined_uint32_t SYSCLK_SWS_clk)
 
 }
 
-defined_uint8_t Configure_RCC_PLLCFGR(RCC_PLL_configration pll)
+uint8_t Configure_RCC_PLLCFGR(RCC_PLL_configration pll)
 {
-	defined_uint32_t pllcfgr = RCC->RCC_PLLCFGR;
-	defined_uint32_t vco;
-	defined_uint8_t  cfg_state = FAILURE;
+	uint32_t pllcfgr = RCC->RCC_PLLCFGR;
+	uint32_t vco;
+	uint8_t  cfg_state = FAILURE;
 
 	if((RCC->RCC_CR & RCC_CR_PLLRDY) >> 24)
 	{
@@ -410,9 +410,9 @@ defined_uint8_t Configure_RCC_PLLCFGR(RCC_PLL_configration pll)
 	return cfg_state;
 }
 
-defined_uint8_t get_current_sysclk_frequency(defined_uint32_t *sysclk_frequency)
+uint8_t get_current_sysclk_frequency(uint32_t *sysclk_frequency)
 {
-	defined_uint8_t get_current_freq_state = FAILURE;
+	uint8_t get_current_freq_state = FAILURE;
 
 	if(((RCC->RCC_CFGR & RCC_CFGR_SWS_LEN)>>2) == SYSCLK_SWS_HSI)
 	{
@@ -437,10 +437,10 @@ defined_uint8_t get_current_sysclk_frequency(defined_uint32_t *sysclk_frequency)
 	return get_current_freq_state;
 }
 
-defined_uint8_t Set_RCC_CFGR_HPRE(uint64_t RCC_CFGR_HPRE_DIV_number)
+uint8_t Set_RCC_CFGR_HPRE(uint64_t RCC_CFGR_HPRE_DIV_number)
 {
-	defined_uint32_t set_prescaler_state = FAILURE;
-	defined_uint32_t AHB_prescaler;
+	uint32_t set_prescaler_state = FAILURE;
+	uint32_t AHB_prescaler;
 	if(RCC_CFGR_HPRE_DIV_number & RCC_CFGR_HPRE_MASK)
 	{
 		AHB_prescaler = RCC->RCC_CFGR;
@@ -456,11 +456,11 @@ defined_uint8_t Set_RCC_CFGR_HPRE(uint64_t RCC_CFGR_HPRE_DIV_number)
 	return set_prescaler_state;
 }
 
-defined_uint32_t Get_RCC_AHB_Freq()
+uint32_t Get_RCC_AHB_Freq()
 {
-	defined_uint32_t SysCurrentClk_freq=0;
-	defined_uint32_t AHB_prescaler;
-	defined_uint32_t prescaler;
+	uint32_t SysCurrentClk_freq=0;
+	uint32_t AHB_prescaler;
+	uint32_t prescaler;
 
 	if(((RCC->RCC_CFGR & RCC_CFGR_SWS_LEN)>>2) == SYSCLK_SWS_HSI)
 	{
@@ -512,10 +512,10 @@ defined_uint32_t Get_RCC_AHB_Freq()
 	return SysCurrentClk_freq/prescaler;
 }
 
-defined_uint8_t Set_RCC_CFGR_PPRE1(uint64_t RCC_CFGR_PPRE1_DIV_number)
+uint8_t Set_RCC_CFGR_PPRE1(uint64_t RCC_CFGR_PPRE1_DIV_number)
 {
-	defined_uint32_t set_prescaler_state = FAILURE;
-	defined_uint32_t APB1_prescaler;
+	uint32_t set_prescaler_state = FAILURE;
+	uint32_t APB1_prescaler;
 	if(RCC_CFGR_PPRE1_DIV_number & RCC_CFGR_PPRE1_MASK)
 	{
 		APB1_prescaler = RCC->RCC_CFGR;
@@ -531,10 +531,10 @@ defined_uint8_t Set_RCC_CFGR_PPRE1(uint64_t RCC_CFGR_PPRE1_DIV_number)
 	return set_prescaler_state;
 }
 
-defined_uint8_t Set_RCC_CFGR_PPRE2(uint64_t RCC_CFGR_PPRE2_DIV_number)
+uint8_t Set_RCC_CFGR_PPRE2(uint64_t RCC_CFGR_PPRE2_DIV_number)
 {
-	defined_uint32_t set_prescaler_state = FAILURE;
-	defined_uint32_t APB2_prescaler;
+	uint32_t set_prescaler_state = FAILURE;
+	uint32_t APB2_prescaler;
 	if(RCC_CFGR_PPRE2_DIV_number & RCC_CFGR_PPRE2_MASK)
 	{
 		APB2_prescaler = RCC->RCC_CFGR;
@@ -550,10 +550,10 @@ defined_uint8_t Set_RCC_CFGR_PPRE2(uint64_t RCC_CFGR_PPRE2_DIV_number)
 	return set_prescaler_state;
 }
 
-defined_uint8_t Set_RCC_CFGR_MCO1_clk(uint64_t RCC_CFGR_MCO1_clk)
+uint8_t Set_RCC_CFGR_MCO1_clk(uint64_t RCC_CFGR_MCO1_clk)
 {
-	defined_uint32_t clock = (defined_uint32_t)(RCC_CFGR_MCO1_clk);
-	defined_uint8_t enable_mco_state = FAILURE;
+	uint32_t clock = (uint32_t)(RCC_CFGR_MCO1_clk);
+	uint8_t enable_mco_state = FAILURE;
 
 	if(RCC_CFGR_MCO1_clk & RCC_CFGR_MCO1_MASK)
 	{
@@ -564,10 +564,10 @@ defined_uint8_t Set_RCC_CFGR_MCO1_clk(uint64_t RCC_CFGR_MCO1_clk)
 	return enable_mco_state;
 }
 
-defined_uint8_t Set_RCC_CFGR_MCO2_clk(uint64_t RCC_CFGR_MCO2_clk)
+uint8_t Set_RCC_CFGR_MCO2_clk(uint64_t RCC_CFGR_MCO2_clk)
 {
-	defined_uint32_t clock = (defined_uint32_t)(RCC_CFGR_MCO2_clk);
-	defined_uint8_t enable_mco_state = FAILURE;
+	uint32_t clock = (uint32_t)(RCC_CFGR_MCO2_clk);
+	uint8_t enable_mco_state = FAILURE;
 	if(RCC_CFGR_MCO2_clk & RCC_CFGR_MCO2_MASK)
 	{
 		RCC->RCC_CFGR |= clock;
@@ -577,10 +577,10 @@ defined_uint8_t Set_RCC_CFGR_MCO2_clk(uint64_t RCC_CFGR_MCO2_clk)
 	return enable_mco_state;
 }
 
-defined_uint8_t Set_RCC_CFGR_MCO1PRE(uint64_t RCC_CFGR_MCO1PRE_DIV_number)
+uint8_t Set_RCC_CFGR_MCO1PRE(uint64_t RCC_CFGR_MCO1PRE_DIV_number)
 {
-	defined_uint32_t prescaler = (defined_uint32_t)(RCC_CFGR_MCO1PRE_DIV_number);
-	defined_uint32_t set_prescaler_state = FAILURE;
+	uint32_t prescaler = (uint32_t)(RCC_CFGR_MCO1PRE_DIV_number);
+	uint32_t set_prescaler_state = FAILURE;
 	if(RCC_CFGR_MCO1PRE_DIV_number & RCC_CFGR_MCO1_MASK)
 	{
 		RCC->RCC_CFGR |= prescaler;
@@ -589,10 +589,10 @@ defined_uint8_t Set_RCC_CFGR_MCO1PRE(uint64_t RCC_CFGR_MCO1PRE_DIV_number)
 	return set_prescaler_state;
 }
 
-defined_uint8_t Set_RCC_CFGR_MCO2PRE(uint64_t RCC_CFGR_MCO2PRE_DIV_number)
+uint8_t Set_RCC_CFGR_MCO2PRE(uint64_t RCC_CFGR_MCO2PRE_DIV_number)
 {
-	defined_uint32_t prescaler = (defined_uint32_t)(RCC_CFGR_MCO2PRE_DIV_number);
-	defined_uint32_t set_prescaler_state = FAILURE;
+	uint32_t prescaler = (uint32_t)(RCC_CFGR_MCO2PRE_DIV_number);
+	uint32_t set_prescaler_state = FAILURE;
 	if(RCC_CFGR_MCO2PRE_DIV_number & RCC_CFGR_MCO2_MASK)
 	{
 		RCC->RCC_CFGR |= prescaler;
@@ -601,11 +601,11 @@ defined_uint8_t Set_RCC_CFGR_MCO2PRE(uint64_t RCC_CFGR_MCO2PRE_DIV_number)
 	return set_prescaler_state;
 }
 
-defined_uint8_t Enable_RCC_AHB1_PERI(uint64_t RCC_AHB1_PERI_name)
+uint8_t Enable_RCC_AHB1_PERI(uint64_t RCC_AHB1_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_AHB1_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_AHB1_PERI_name);
 
-	defined_uint8_t enable_state = FAILURE;
+	uint8_t enable_state = FAILURE;
 	if((RCC_AHB1_PERI_name & RCC_AHB1ENR_MASK) == RCC_AHB1ENR_MASK)
 	{
 		RCC->RCC_AHB1ENR |= peripheral;
@@ -618,11 +618,11 @@ defined_uint8_t Enable_RCC_AHB1_PERI(uint64_t RCC_AHB1_PERI_name)
 	return enable_state;
 }
 
-defined_uint8_t Enable_RCC_AHB2_PERI(uint64_t RCC_AHB2_PERI_name)
+uint8_t Enable_RCC_AHB2_PERI(uint64_t RCC_AHB2_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_AHB2_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_AHB2_PERI_name);
 
-	defined_uint8_t enable_state = FAILURE;
+	uint8_t enable_state = FAILURE;
 	if((RCC_AHB2_PERI_name & RCC_AHB2ENR_MASK) == RCC_AHB2ENR_MASK)
 	{
 		RCC->RCC_AHB2ENR |= peripheral;
@@ -636,11 +636,11 @@ defined_uint8_t Enable_RCC_AHB2_PERI(uint64_t RCC_AHB2_PERI_name)
 
 }
 
-defined_uint8_t Enable_RCC_AHB3_PERI(uint64_t RCC_AHB3_PERI_name)
+uint8_t Enable_RCC_AHB3_PERI(uint64_t RCC_AHB3_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_AHB3_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_AHB3_PERI_name);
 
-	defined_uint8_t enable_state = FAILURE;
+	uint8_t enable_state = FAILURE;
 	if((RCC_AHB3_PERI_name & RCC_AHB3ENR_MASK) == RCC_AHB3ENR_MASK)
 	{
 		RCC->RCC_AHB3ENR |= peripheral;
@@ -653,11 +653,11 @@ defined_uint8_t Enable_RCC_AHB3_PERI(uint64_t RCC_AHB3_PERI_name)
 	return enable_state;
 }
 
-defined_uint8_t Enable_RCC_APB1_PERI(uint64_t RCC_APB1_PERI_name)
+uint8_t Enable_RCC_APB1_PERI(uint64_t RCC_APB1_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_APB1_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_APB1_PERI_name);
 
-	defined_uint8_t enable_state = FAILURE;
+	uint8_t enable_state = FAILURE;
 	if((RCC_APB1_PERI_name & RCC_APB1ENR_MASK) == RCC_APB1ENR_MASK)
 	{
 		RCC->RCC_APB1ENR |= peripheral;
@@ -670,11 +670,11 @@ defined_uint8_t Enable_RCC_APB1_PERI(uint64_t RCC_APB1_PERI_name)
 	return enable_state;
 }
 
-defined_uint8_t Enable_RCC_APB2_PERI(uint64_t RCC_APB2_PERI_name)
+uint8_t Enable_RCC_APB2_PERI(uint64_t RCC_APB2_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_APB2_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_APB2_PERI_name);
 
-	defined_uint8_t enable_state = FAILURE;
+	uint8_t enable_state = FAILURE;
 	if((RCC_APB2_PERI_name & RCC_APB2ENR_MASK) == RCC_APB2ENR_MASK)
 	{
 		RCC->RCC_APB2ENR |= peripheral;
@@ -687,11 +687,11 @@ defined_uint8_t Enable_RCC_APB2_PERI(uint64_t RCC_APB2_PERI_name)
 	return enable_state;
 }
 
-defined_uint8_t Enable_RCC_AHB1LP_PERI(uint64_t RCC_AHB1LP_PERI_name)
+uint8_t Enable_RCC_AHB1LP_PERI(uint64_t RCC_AHB1LP_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_AHB1LP_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_AHB1LP_PERI_name);
 
-	defined_uint8_t enable_state = FAILURE;
+	uint8_t enable_state = FAILURE;
 	if((RCC_AHB1LP_PERI_name & RCC_AHB1LPENR_MASK) == RCC_AHB1LPENR_MASK)
 	{
 		RCC->RCC_AHB1LPENR |= peripheral;
@@ -704,11 +704,11 @@ defined_uint8_t Enable_RCC_AHB1LP_PERI(uint64_t RCC_AHB1LP_PERI_name)
 	return enable_state;
 }
 
-defined_uint8_t Enable_RCC_AHB2LP_PERI(uint64_t RCC_AHB2LP_PERI_name)
+uint8_t Enable_RCC_AHB2LP_PERI(uint64_t RCC_AHB2LP_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_AHB2LP_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_AHB2LP_PERI_name);
 
-	defined_uint8_t enable_state = FAILURE;
+	uint8_t enable_state = FAILURE;
 	if((RCC_AHB2LP_PERI_name & RCC_AHB2LPENR_MASK) == RCC_AHB2LPENR_MASK)
 	{
 		RCC->RCC_AHB2LPENR |= peripheral;
@@ -721,11 +721,11 @@ defined_uint8_t Enable_RCC_AHB2LP_PERI(uint64_t RCC_AHB2LP_PERI_name)
 	return enable_state;
 }
 
-defined_uint8_t Enable_RCC_AHB3LP_PERI(uint64_t RCC_AHB3LP_PERI_name)
+uint8_t Enable_RCC_AHB3LP_PERI(uint64_t RCC_AHB3LP_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_AHB3LP_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_AHB3LP_PERI_name);
 
-	defined_uint8_t enable_state = FAILURE;
+	uint8_t enable_state = FAILURE;
 	if((RCC_AHB3LP_PERI_name & RCC_AHB3LPENR_MASK) == RCC_AHB3LPENR_MASK)
 	{
 		RCC->RCC_AHB3LPENR |= peripheral;
@@ -738,11 +738,11 @@ defined_uint8_t Enable_RCC_AHB3LP_PERI(uint64_t RCC_AHB3LP_PERI_name)
 	return enable_state;
 }
 
-defined_uint8_t Enable_RCC_APB1LP_PERI(uint64_t RCC_APB1LP_PERI_name)
+uint8_t Enable_RCC_APB1LP_PERI(uint64_t RCC_APB1LP_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_APB1LP_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_APB1LP_PERI_name);
 
-	defined_uint8_t enable_state = FAILURE;
+	uint8_t enable_state = FAILURE;
 	if((RCC_APB1LP_PERI_name & RCC_APB1LPENR_MASK) == RCC_APB1LPENR_MASK)
 	{
 		RCC->RCC_APB1LPENR |= peripheral;
@@ -755,11 +755,11 @@ defined_uint8_t Enable_RCC_APB1LP_PERI(uint64_t RCC_APB1LP_PERI_name)
 	return enable_state;
 }
 
-defined_uint8_t Enable_RCC_APB2LP_PERI(uint64_t RCC_APB2LP_PERI_name)
+uint8_t Enable_RCC_APB2LP_PERI(uint64_t RCC_APB2LP_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_APB2LP_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_APB2LP_PERI_name);
 
-	defined_uint8_t enable_state = FAILURE;
+	uint8_t enable_state = FAILURE;
 	if((RCC_APB2LP_PERI_name & RCC_APB2LPENR_MASK) == RCC_APB2LPENR_MASK)
 	{
 		RCC->RCC_APB2LPENR |= peripheral;
@@ -773,11 +773,11 @@ defined_uint8_t Enable_RCC_APB2LP_PERI(uint64_t RCC_APB2LP_PERI_name)
 }
 
 
-defined_uint8_t Disable_RCC_AHB1_PERI(uint64_t RCC_AHB1_PERI_name)
+uint8_t Disable_RCC_AHB1_PERI(uint64_t RCC_AHB1_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_AHB1_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_AHB1_PERI_name);
 
-	defined_uint8_t disable_state = FAILURE;
+	uint8_t disable_state = FAILURE;
 	if((RCC_AHB1_PERI_name & RCC_AHB1ENR_MASK) == RCC_AHB1ENR_MASK)
 	{
 		RCC->RCC_AHB1ENR &= ~peripheral;
@@ -791,11 +791,11 @@ defined_uint8_t Disable_RCC_AHB1_PERI(uint64_t RCC_AHB1_PERI_name)
 
 }
 
-defined_uint8_t Disable_RCC_AHB2_PERI(uint64_t RCC_AHB2_PERI_name)
+uint8_t Disable_RCC_AHB2_PERI(uint64_t RCC_AHB2_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_AHB2_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_AHB2_PERI_name);
 
-	defined_uint8_t disable_state = FAILURE;
+	uint8_t disable_state = FAILURE;
 	if((RCC_AHB2_PERI_name & RCC_AHB2ENR_MASK) == RCC_AHB2ENR_MASK)
 	{
 		RCC->RCC_AHB2ENR &= ~peripheral;
@@ -809,11 +809,11 @@ defined_uint8_t Disable_RCC_AHB2_PERI(uint64_t RCC_AHB2_PERI_name)
 
 }
 
-defined_uint8_t Disable_RCC_AHB3_PERI(uint64_t RCC_AHB3_PERI_name)
+uint8_t Disable_RCC_AHB3_PERI(uint64_t RCC_AHB3_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_AHB3_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_AHB3_PERI_name);
 
-	defined_uint8_t disable_state = FAILURE;
+	uint8_t disable_state = FAILURE;
 	if((RCC_AHB3_PERI_name & RCC_AHB3ENR_MASK) == RCC_AHB3ENR_MASK)
 	{
 		RCC->RCC_AHB3ENR &= ~peripheral;
@@ -826,11 +826,11 @@ defined_uint8_t Disable_RCC_AHB3_PERI(uint64_t RCC_AHB3_PERI_name)
 	return disable_state;
 }
 
-defined_uint8_t Disable_RCC_APB1_PERI(uint64_t RCC_APB1_PERI_name)
+uint8_t Disable_RCC_APB1_PERI(uint64_t RCC_APB1_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_APB1_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_APB1_PERI_name);
 
-	defined_uint8_t disable_state = FAILURE;
+	uint8_t disable_state = FAILURE;
 	if((RCC_APB1_PERI_name & RCC_APB1ENR_MASK) == RCC_APB1ENR_MASK)
 	{
 		RCC->RCC_APB1ENR &= ~peripheral;
@@ -843,11 +843,11 @@ defined_uint8_t Disable_RCC_APB1_PERI(uint64_t RCC_APB1_PERI_name)
 	return disable_state;
 }
 
-defined_uint8_t Disable_RCC_APB2_PERI(uint64_t RCC_APB2_PERI_name)
+uint8_t Disable_RCC_APB2_PERI(uint64_t RCC_APB2_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_APB2_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_APB2_PERI_name);
 
-	defined_uint8_t disable_state = FAILURE;
+	uint8_t disable_state = FAILURE;
 	if((RCC_APB2_PERI_name & RCC_APB2ENR_MASK) == RCC_APB2ENR_MASK)
 	{
 		RCC->RCC_APB2ENR &= ~peripheral;
@@ -861,11 +861,11 @@ defined_uint8_t Disable_RCC_APB2_PERI(uint64_t RCC_APB2_PERI_name)
 
 }
 
-defined_uint8_t Disable_RCC_AHB1LP_PERI(uint64_t RCC_AHB1LP_PERI_name)
+uint8_t Disable_RCC_AHB1LP_PERI(uint64_t RCC_AHB1LP_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_AHB1LP_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_AHB1LP_PERI_name);
 
-	defined_uint8_t disable_state = FAILURE;
+	uint8_t disable_state = FAILURE;
 	if((RCC_AHB1LP_PERI_name & RCC_AHB1LPENR_MASK) == RCC_AHB1LPENR_MASK)
 	{
 		RCC->RCC_AHB1LPENR &= ~peripheral;
@@ -878,11 +878,11 @@ defined_uint8_t Disable_RCC_AHB1LP_PERI(uint64_t RCC_AHB1LP_PERI_name)
 	return disable_state;
 }
 
-defined_uint8_t Disable_RCC_AHB2LP_PERI(uint64_t RCC_AHB2LP_PERI_name)
+uint8_t Disable_RCC_AHB2LP_PERI(uint64_t RCC_AHB2LP_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_AHB2LP_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_AHB2LP_PERI_name);
 
-	defined_uint8_t disable_state = FAILURE;
+	uint8_t disable_state = FAILURE;
 	if((RCC_AHB2LP_PERI_name & RCC_AHB2LPENR_MASK) ==RCC_AHB2LPENR_MASK)
 	{
 		RCC->RCC_AHB2LPENR &= ~peripheral;
@@ -895,11 +895,11 @@ defined_uint8_t Disable_RCC_AHB2LP_PERI(uint64_t RCC_AHB2LP_PERI_name)
 	return disable_state;
 }
 
-defined_uint8_t Disable_RCC_AHB3LP_PERI(uint64_t RCC_AHB3LP_PERI_name)
+uint8_t Disable_RCC_AHB3LP_PERI(uint64_t RCC_AHB3LP_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_AHB3LP_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_AHB3LP_PERI_name);
 
-	defined_uint8_t disable_state = FAILURE;
+	uint8_t disable_state = FAILURE;
 	if((RCC_AHB3LP_PERI_name & RCC_AHB3LPENR_MASK) == RCC_AHB3LPENR_MASK)
 	{
 		RCC->RCC_AHB3LPENR &= ~peripheral;
@@ -912,11 +912,11 @@ defined_uint8_t Disable_RCC_AHB3LP_PERI(uint64_t RCC_AHB3LP_PERI_name)
 	return disable_state;
 }
 
-defined_uint8_t Disable_RCC_APB1LP_PERI(uint64_t RCC_APB1LP_PERI_name)
+uint8_t Disable_RCC_APB1LP_PERI(uint64_t RCC_APB1LP_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_APB1LP_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_APB1LP_PERI_name);
 
-	defined_uint8_t disable_state = FAILURE;
+	uint8_t disable_state = FAILURE;
 	if((RCC_APB1LP_PERI_name & RCC_APB1LPENR_MASK) == RCC_APB1LPENR_MASK)
 	{
 		RCC->RCC_APB1LPENR &= ~peripheral;
@@ -929,11 +929,11 @@ defined_uint8_t Disable_RCC_APB1LP_PERI(uint64_t RCC_APB1LP_PERI_name)
 	return disable_state;
 }
 
-defined_uint8_t Disable_RCC_APB2LP_PERI(uint64_t RCC_APB2LP_PERI_name)
+uint8_t Disable_RCC_APB2LP_PERI(uint64_t RCC_APB2LP_PERI_name)
 {
-	defined_uint32_t peripheral = (defined_uint32_t)(RCC_APB2LP_PERI_name);
+	uint32_t peripheral = (uint32_t)(RCC_APB2LP_PERI_name);
 
-	defined_uint8_t disable_state = FAILURE;
+	uint8_t disable_state = FAILURE;
 	if((RCC_APB2LP_PERI_name & RCC_APB2LPENR_MASK) == RCC_APB2LPENR_MASK)
 	{
 		RCC->RCC_APB2LPENR &= ~peripheral;
