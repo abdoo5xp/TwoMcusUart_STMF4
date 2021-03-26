@@ -65,20 +65,35 @@ static void itoa(uint32_t Copy_u32Number,uint8_t *Copy_pu8NumArr);
  * ***************************************************************************************************************/
 void App_Init(void)
 {
+	/*SwTimer initialization */
+	SwTimer_init(1);
+
+	/*the uart channel that aour app will work on */
 	ModuleIdx = Hal_Uart_Module_1;
 
+	/*the buses clock frequencies */
 	Set_RCC_CFGR_PPRE1(RCC_CFGR_PPRE1_DIV_4);
 	Enable_RCC_AHB1_PERI(RCC_AHB1_PERI_GPIODEN);
-	led_init();
-	LCD_Init();
-	App_Disp_init();
-	Clock_init(25,3,2021,7,33);
-	HalUart_Init();
 
+	/*Led initialization */
+	led_init();
+
+	/*LCD initialization */
+	LCD_Init();
+
+	/*Display zeros as initial value for all values till a transmission is constructed */
+	App_Disp_init();
+
+	/*Clock initialization */
+	Clock_init(25,3,2021,7,33);
+
+	/*Uart channel initialization */
+	HalUart_Init();
 	HalUart_SetReciveCbf(App_RecieveDone);
 	HalUart_SetSendCbf(App_TransmitDone, ModuleIdx);
+
+	/*Establishing the communication */
 	SwTimer_RegisterCBF(100,SWTimer_TimerMode_Periodic,App_stablishComm);
-	SwTimer_init(1);
 }
 
 /**************************************************************************************************************
@@ -100,7 +115,6 @@ void App_main(void)
 	if(IsDataRecieved)
 	{
 		IsDataRecieved=0;
-
 
 		Recieved_Data.date_time.Days = AppRecievedBuff[0];
 		Recieved_Data.date_time.Months = AppRecievedBuff[1];

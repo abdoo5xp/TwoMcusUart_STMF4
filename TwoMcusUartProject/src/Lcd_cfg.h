@@ -13,7 +13,7 @@
 #define LCD_u8_8BITS_MODE			8
 #define LCD_u8MODE				LCD_u8_8BITS_MODE
 
-#define LCD_BUFFER_SIZE				1024
+#define LCD_BUFFER_SIZE				2048
 
 /*LCD first delay time divided by 2, because the function is recalled every 2 ms by the sw timer  */
 #define LCD_INIT_UP_TIME			15
