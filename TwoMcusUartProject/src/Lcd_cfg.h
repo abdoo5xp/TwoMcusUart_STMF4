@@ -16,7 +16,7 @@
 #define LCD_BUFFER_SIZE				2048
 
 /*LCD first delay time divided by 2, because the function is recalled every 2 ms by the sw timer  */
-#define LCD_INIT_UP_TIME			15
+#define LCD_INIT_UP_TIME			20
 
 /*LCD Pin Assignation */
 #define LCD_RS			8

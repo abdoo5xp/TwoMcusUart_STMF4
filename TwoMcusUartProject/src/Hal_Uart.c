@@ -21,6 +21,7 @@
 /*instance index */
 uint8_t module_idx;
 
+static uint8_t Sig_receivingFlag;
 /*TODO -> Future Work : make an array of pointer to buffers, for user buffers for multiple instances */
 /*TODO: revise the sequence of calling of sending and receiving for sending and receiving
  *		=> sendbuffer sequence revised and a bug found.
@@ -179,14 +180,26 @@ uint8_t HalUart_ReciveBuffer(uint8_t * UserBuffer,uint16_t size,Hal_Uart_Module_
 
 static void recive_done()
 {
+
 	uint8_t state;
 	/*
 	 * Hal_recBuffer is the deconstructed buffer
 	 * TODO: How does the application receive the deconstructed buffer ??
 	 * */
-	state = Frame_Deconstruct_buffer(Hal_Uart_RxBuffer, FRAME_SIZE, rx_buffer.data);
+	if(Sig_receivingFlag)
+	{
+		state = Frame_Deconstruct_buffer(Hal_Uart_Sig_Recv_Buffer, SIG_BYTES_NUM +1, Hal_Uart_RxBuffer );
+	}
+	else
+	{
+		state = Frame_Deconstruct_buffer(Hal_Uart_RxBuffer, FRAME_SIZE, rx_buffer.data);
+	}
+
 	if(Notify_recieve_done && state == RT_SUCCESS)
+	{
+		Sig_receivingFlag = 0;
 		Notify_recieve_done();
+	}
 }
 
 /*TODO Future Work : add Hal_Uart_Module_idx_t HalUartModule_idx -> as an input parameter to handle multiple instances  */
@@ -228,7 +241,9 @@ void HalUart_RecieveSig(Hal_Uart_Module_idx_t idx)
 
 	if(state == RT_SUCCESS)
 	{
-			/*  we calculate the check sum of the signature and
+		   Sig_receivingFlag = 1;
+
+		   /*  we calculate the check sum of the signature and
 			 *  insert it at the end of Signature received buffer
 			 * */
 			checkSum = calc_checkSum(Sig,SIG_BYTES_NUM);
