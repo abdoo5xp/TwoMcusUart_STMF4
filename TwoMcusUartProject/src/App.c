@@ -68,6 +68,9 @@ void App_Init(void)
 	/*SwTimer initialization */
 	SwTimer_init(1);
 
+	/*LCD initialization */
+	LCD_Init();
+
 	/*the uart channel that aour app will work on */
 	ModuleIdx = Hal_Uart_Module_1;
 
@@ -77,9 +80,6 @@ void App_Init(void)
 
 	/*Led initialization */
 	led_init();
-
-	/*LCD initialization */
-	LCD_Init();
 
 	/*Display zeros as initial value for all values till a transmission is constructed */
 	App_Disp_init();
@@ -93,7 +93,7 @@ void App_Init(void)
 	HalUart_SetSendCbf(App_TransmitDone, ModuleIdx);
 
 	/*Establishing the communication */
-	SwTimer_RegisterCBF(100,SWTimer_TimerMode_Periodic,App_stablishComm);
+	SwTimer_RegisterCBF(200,SWTimer_TimerMode_Periodic,App_stablishComm);
 }
 
 /**************************************************************************************************************
@@ -118,7 +118,7 @@ void App_main(void)
 
 		Recieved_Data.date_time.Days = AppRecievedBuff[0];
 		Recieved_Data.date_time.Months = AppRecievedBuff[1];
-		Recieved_Data.date_time.Years = (uint32_t)((uint32_t) AppRecievedBuff[2] << 8)| ((uint32_t) AppRecievedBuff[3]);
+		Recieved_Data.date_time.Years = (uint32_t)((uint32_t) AppRecievedBuff[3] << 8)| ((uint32_t) AppRecievedBuff[2]);
 		Recieved_Data.date_time.hrs = AppRecievedBuff[4];
 		Recieved_Data.date_time.min = AppRecievedBuff[5];
 		Recieved_Data.swtich_state = AppRecievedBuff[6];
@@ -174,45 +174,51 @@ static void App_DispAll(App_Data_t * data)
 	uint8_t charcter[10];
 	LCD_GoTo(lcdSecondRow,0);
 
-	itoa(data->date_time.Days%10,charcter);
-	LCD_WriteString(charcter);
 	itoa(data->date_time.Days/10,charcter);
+	LCD_WriteString(charcter);
+	itoa(data->date_time.Days%10,charcter);
 	LCD_WriteString(charcter);
 
 	LCD_GoTo(lcdSecondRow,2);
-	itoa(data->date_time.Months%10,charcter);
-	LCD_WriteString(charcter);
 	itoa(data->date_time.Months/10,charcter);
+	LCD_WriteString(charcter);
+	itoa(data->date_time.Months%10,charcter);
 	LCD_WriteString(charcter);
 
 
 	LCD_GoTo(lcdSecondRow,4);
-	itoa(data->date_time.Years%10,charcter);
-	LCD_WriteString(charcter);
-	itoa(((data->date_time.Years/10)%10),charcter);
+	itoa((data->date_time.Years/1000),charcter);
 	LCD_WriteString(charcter);
 	itoa(((data->date_time.Years/100)%10),charcter);
 	LCD_WriteString(charcter);
-	itoa((data->date_time.Years/1000),charcter);
+	itoa(((data->date_time.Years/10)%10),charcter);
 	LCD_WriteString(charcter);
+	itoa(data->date_time.Years%10,charcter);
+	LCD_WriteString(charcter);
+
+
+
 
 	LCD_GoTo(lcdSecondRow,8);
-	itoa(data->date_time.hrs%10,charcter);
-	LCD_WriteString(charcter);
 	itoa(data->date_time.hrs/10,charcter);
 	LCD_WriteString(charcter);
+	itoa(data->date_time.hrs%10,charcter);
+	LCD_WriteString(charcter);
+
 
 	LCD_GoTo(lcdSecondRow,10);
-	itoa(data->date_time.min%10,charcter);
-	LCD_WriteString(charcter);
 	itoa(data->date_time.min/10,charcter);
 	LCD_WriteString(charcter);
+	itoa(data->date_time.min%10,charcter);
+	LCD_WriteString(charcter);
+
 
 	LCD_GoTo(lcdSecondRow,12);
-	itoa(data->date_time.sec%10,charcter);
-	LCD_WriteString(charcter);
 	itoa(data->date_time.sec/10,charcter);
 	LCD_WriteString(charcter);
+	itoa(data->date_time.sec%10,charcter);
+	LCD_WriteString(charcter);
+
 
 	LCD_GoTo(lcdSecondRow,14);
 	if(data->swtich_state == switch_pressed)
@@ -248,10 +254,10 @@ static void App_RecieveDone(void)
 		IsDataSent=1;
 		SwTimer_UnRegisterCBF(App_stablishComm);
 	}
-	else
-	{
-		IsDataRecieved = 1;
-	}
+	//	else
+	//	{
+	IsDataRecieved = 1;
+	//	}
 }
 
 /*TODO: Don't Register this function from the beginning,
@@ -291,7 +297,8 @@ static void App_TransmitDone(void)
 static void App_stablishComm(void)
 {
 	HalUart_SendSig(ModuleIdx);
-	HalUart_RecieveSig(ModuleIdx);
+	//	HalUart_RecieveSig(ModuleIdx);
+	HalUart_ReciveBuffer(AppRecievedBuff, DATA_BYTES_NUM, ModuleIdx);
 }
 
 /**************************************************************************************************************
@@ -387,12 +394,10 @@ static void itoa(uint32_t Copy_u32Number,uint8_t *Copy_pu8NumArr){
 
 	}while (Copy_u32Number != 0);
 
-	Copy_pu8NumArr[Loc_u8NumLoopIdx] = '\0';
-
 	/*
 	 * Now reverse the characters
 	 * */
-	while (Loc_u8Counter < Loc_u8NumLoopIdx)
+	while (Loc_u8Counter < Loc_u8NumLoopIdx-1)
 	{
 		Loc_u8Temp = Copy_pu8NumArr[Loc_u8NumLoopIdx];
 		Copy_pu8NumArr[Loc_u8NumLoopIdx] = Copy_pu8NumArr[Loc_u8Counter];
@@ -400,6 +405,8 @@ static void itoa(uint32_t Copy_u32Number,uint8_t *Copy_pu8NumArr){
 		Loc_u8Counter++;
 		Loc_u8NumLoopIdx--;
 	}
+
+	Copy_pu8NumArr[Loc_u8NumLoopIdx] = '\0';
 
 }
 

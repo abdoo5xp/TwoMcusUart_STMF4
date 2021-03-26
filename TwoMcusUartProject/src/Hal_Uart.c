@@ -180,7 +180,7 @@ uint8_t HalUart_ReciveBuffer(uint8_t * UserBuffer,uint16_t size,Hal_Uart_Module_
 
 static void recive_done()
 {
-
+	trace_printf("File -> %s , Line -> %d , Sig_receivingFlag = %d  ",__FILE__,__LINE__,Sig_receivingFlag);
 	uint8_t state;
 	/*
 	 * Hal_recBuffer is the deconstructed buffer
@@ -237,11 +237,11 @@ void HalUart_RecieveSig(Hal_Uart_Module_idx_t idx)
 	 *      + the Sig container is not with that size.
 	 * */
 
-	Uart_RecvBuff(H_Uart_Module[idx].Uart_Channel,Hal_Uart_Sig_Recv_Buffer,SIG_BYTES_NUM);
+	state = Uart_RecvBuff(H_Uart_Module[idx].Uart_Channel,Hal_Uart_Sig_Recv_Buffer,SIG_BYTES_NUM);
 
 	if(state == RT_SUCCESS)
 	{
-		   Sig_receivingFlag = 1;
+		    Sig_receivingFlag = 1;
 
 		   /*  we calculate the check sum of the signature and
 			 *  insert it at the end of Signature received buffer
