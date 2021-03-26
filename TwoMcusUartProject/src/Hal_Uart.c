@@ -19,7 +19,7 @@
 #include "Hal_Uart_int.h"
 
 /*instance index */
-uint8_t module_idx;
+static uint8_t module_idx;
 
 static uint8_t Sig_receivingFlag;
 /*TODO -> Future Work : make an array of pointer to buffers, for user buffers for multiple instances */

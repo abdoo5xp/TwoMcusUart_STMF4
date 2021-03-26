@@ -22,6 +22,10 @@
 #include "App_Types.h"
 #include "App.h"
 
+#define APP_SLAVE			0
+#define APP_MASTER			1
+#define APP_MCU				APP_MASTER
+
 App_Data_t Recieved_Data;
 App_Data_t Transmitted_Data;
 
@@ -93,7 +97,11 @@ void App_Init(void)
 	HalUart_SetSendCbf(App_TransmitDone, ModuleIdx);
 
 	/*Establishing the communication */
+#if APP_MCU == APP_MASTER
+	SwTimer_RegisterCBF(400,SWTimer_TimerMode_Periodic,App_stablishComm);
+#elif	APP_MCU == APP_SLAVE
 	SwTimer_RegisterCBF(200,SWTimer_TimerMode_Periodic,App_stablishComm);
+#endif
 }
 
 /**************************************************************************************************************
@@ -130,7 +138,8 @@ void App_main(void)
 		else if(Recieved_Data.swtich_state == switch_not_pressed)
 			led_Control(LED_ZAR2A,LED_OFF);
 
-		HalUart_ReciveBuffer(AppSentBuff,DATA_BYTES_NUM,ModuleIdx);
+		//	HalUart_ReciveBuffer(AppRecievedBuff,DATA_BYTES_NUM,ModuleIdx);
+		HalUart_SendBuffer(AppSentBuff,DATA_BYTES_NUM,ModuleIdx);
 	}
 
 	if(IsDataSent)
@@ -149,7 +158,8 @@ void App_main(void)
 		AppSentBuff[6] = Transmitted_Data.date_time.sec;
 		AppSentBuff[7] = Transmitted_Data.swtich_state;
 
-		HalUart_SendBuffer(AppSentBuff,DATA_BYTES_NUM,ModuleIdx);
+		//		HalUart_SendBuffer(AppSentBuff,DATA_BYTES_NUM,ModuleIdx);
+		HalUart_ReciveBuffer(AppRecievedBuff,DATA_BYTES_NUM,ModuleIdx);
 	}
 
 }
@@ -251,13 +261,19 @@ static void App_RecieveDone(void)
 	if(!SigRecieved_flag)
 	{
 		SigRecieved_flag ++;
-		IsDataSent=1;
 		SwTimer_UnRegisterCBF(App_stablishComm);
+	#if APP_MCU == APP_MASTER
+		IsDataRecieved =1;
+		IsDataSent = 1;
+	#elif APP_MCU == APP_SLAVE
+		HalUart_SendSig(ModuleIdx);
+		IsDataSent = 1;
+	#endif
 	}
-	//	else
-	//	{
-	IsDataRecieved = 1;
-	//	}
+	else
+	{
+		IsDataRecieved = 1;
+	}
 }
 
 /*TODO: Don't Register this function from the beginning,
@@ -296,9 +312,14 @@ static void App_TransmitDone(void)
  * ***************************************************************************************************************/
 static void App_stablishComm(void)
 {
+#if APP_MCU  == APP_MASTER
 	HalUart_SendSig(ModuleIdx);
+#elif APP_MCU == APP_SLAVE
+	HalUart_RecieveSig(ModuleIdx);
+#endif
+
 	//	HalUart_RecieveSig(ModuleIdx);
-	HalUart_ReciveBuffer(AppRecievedBuff, DATA_BYTES_NUM, ModuleIdx);
+	//	HalUart_ReciveBuffer(AppRecievedBuff, DATA_BYTES_NUM, ModuleIdx);
 }
 
 /**************************************************************************************************************
