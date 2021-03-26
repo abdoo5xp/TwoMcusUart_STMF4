@@ -41,15 +41,15 @@ uint8_t Frame_Construct_buffer(uint8_t * UserBuffer,uint16_t size,uint8_t * Cons
 	return state;
 }
 
-
-
 uint8_t  Frame_Deconstruct_buffer(uint8_t * UserBuffer,uint16_t size,uint8_t * Deconstructed_buff)
 {
 	uint8_t state = RT_ERROR;
 	uint8_t idx;
+
 	if(UserBuffer && size > 0 )
 	{
 		state = Frame_Check_Buffer(UserBuffer,size);
+		/*if the frame is correct ( signature and checksum are correct  )*/
 		if (state == RT_SUCCESS)
 		{
 			for(idx = SIG_BYTES_NUM ; idx<size;idx++)
@@ -60,7 +60,6 @@ uint8_t  Frame_Deconstruct_buffer(uint8_t * UserBuffer,uint16_t size,uint8_t * D
 	}
 	return state;
 }
-
 
 static uint8_t Frame_Check_Buffer (uint8_t * UserBuffer,uint16_t size)
 {
@@ -76,6 +75,7 @@ static uint8_t Frame_Check_Buffer (uint8_t * UserBuffer,uint16_t size)
 	}
 
 	checksum = calc_checkSum(UserBuffer,size-1);
+
 	if(state == RT_SUCCESS && UserBuffer[size-1] == checksum)
 	{
 		state= RT_SUCCESS;
@@ -91,6 +91,7 @@ uint8_t calc_checkSum(uint8_t * UserBuffer,uint16_t size)
 {
 	uint8_t idx;
 	uint8_t checksum=0;
+
 	for(idx=0;idx<size;idx++)
 	{
 		checksum += UserBuffer[idx];

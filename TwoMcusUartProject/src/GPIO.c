@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include "Bit_Mask.h"
 #include "Bit_Math.h"
-#include "../../lib/STM32_F407_Registers.h"
+#include "../../../lib/STM32_F407_Registers.h"
 #include "Error_codes.h"
 #include "GPIO.h"
 

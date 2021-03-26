@@ -32,7 +32,16 @@ static uint8_t ModuleIdx;
 
 static uint8_t AppSentBuff[DATA_BYTES_NUM];
 static uint8_t AppRecievedBuff[DATA_BYTES_NUM];
-
+/*TODO: now we have a problem the receive function doesn't get called,
+ * 		which means receiving is not done successfully,
+ * 		what could be the problem ??
+ * 			-> check do we send the SIG + checksum  ??
+ * 			-> check do we receive the SIG + checksum ??
+ * 			-> check the above two cases by sniffing on the usart channel.
+			-> the deconstruct frame faces a problem while deconstructing the frame.
+ * 			-> the frame is not received successfully.
+ * 			-> that we noticed that RXNEIE flag is not enabled.
+ * 		  */
 
 static void App_RecieveDone(void);
 static void App_TransmitDone(void);
@@ -41,42 +50,73 @@ static void App_DispAll(App_Data_t * data);
 static void App_Disp_init(void);
 static void itoa(uint32_t Copy_u32Number,uint8_t *Copy_pu8NumArr);
 
+/**************************************************************************************************************
+ * Public Function: App_Init
+ * Description: This function is used to initialize the system.
+ * Input Parameters:
+ * 				   	 -Not Applicable (void)
+ *
+ *
+ * Return:           -Not Applicable (void)
+ *
+ *
+ * Input/Output Parameters:
+ * 					-Not Applicable (void)
+ * ***************************************************************************************************************/
 void App_Init(void)
 {
+	ModuleIdx = Hal_Uart_Module_1;
 
 	Set_RCC_CFGR_PPRE1(RCC_CFGR_PPRE1_DIV_4);
+	Enable_RCC_AHB1_PERI(RCC_AHB1_PERI_GPIODEN);
 	led_init();
 	LCD_Init();
 	App_Disp_init();
 	Clock_init(25,3,2021,7,33);
 	HalUart_Init();
-	SwTimer_RegisterCBF(2,SWTimer_TimerMode_Periodic,App_stablishComm);
+
 	HalUart_SetReciveCbf(App_RecieveDone);
-	HalUart_SetSendCbf(App_TransmitDone);
-	ModuleIdx = Hal_Uart_Module_1;
+	HalUart_SetSendCbf(App_TransmitDone, ModuleIdx);
+	SwTimer_RegisterCBF(100,SWTimer_TimerMode_Periodic,App_stablishComm);
 	SwTimer_init(1);
 }
 
+/**************************************************************************************************************
+ * Public Function: App_main
+ * Description: This function is used to -> 1- collect the data and send a new frame when isDataSent flag is raised,
+ * 											2- display the Received data on LCD, and update the LED status when isDataReceived flag is raised.
+ * Input Parameters:
+ * 					 -Not Applicable (void)
+ *
+ *
+ * Return:           -Not Applicable (void)
+ *
+ *
+ * Input/Output Parameters:
+ * 					-Not Applicable (void)
+ * ***************************************************************************************************************/
 void App_main(void)
 {
 	if(IsDataRecieved)
 	{
-
 		IsDataRecieved=0;
-		HalUart_ReciveBuffer(AppSentBuff,DATA_BYTES_NUM,ModuleIdx);
+
 
 		Recieved_Data.date_time.Days = AppRecievedBuff[0];
 		Recieved_Data.date_time.Months = AppRecievedBuff[1];
-		Recieved_Data.date_time.Years = (uint32_t)((uint32_t) AppRecievedBuff[2] )| ((uint32_t) AppRecievedBuff[3]);
+		Recieved_Data.date_time.Years = (uint32_t)((uint32_t) AppRecievedBuff[2] << 8)| ((uint32_t) AppRecievedBuff[3]);
 		Recieved_Data.date_time.hrs = AppRecievedBuff[4];
 		Recieved_Data.date_time.min = AppRecievedBuff[5];
 		Recieved_Data.swtich_state = AppRecievedBuff[6];
+
 		App_DispAll(&Recieved_Data);
+
 		if(Recieved_Data.swtich_state == switch_pressed)
 			led_Control(LED_ZAR2A,LED_ON);
 		else if(Recieved_Data.swtich_state == switch_not_pressed)
 			led_Control(LED_ZAR2A,LED_OFF);
 
+		HalUart_ReciveBuffer(AppSentBuff,DATA_BYTES_NUM,ModuleIdx);
 	}
 
 	if(IsDataSent)
@@ -89,16 +129,32 @@ void App_main(void)
 		AppSentBuff[0] = Transmitted_Data.date_time.Days;
 		AppSentBuff[1] = Transmitted_Data.date_time.Months;
 		AppSentBuff[2] = ((uint8_t)(Transmitted_Data.date_time.Years));
-		AppSentBuff[3] = ((uint8_t)((Transmitted_Data.date_time.Years)>>4));
+		AppSentBuff[3] = ((uint8_t)((Transmitted_Data.date_time.Years)>> 8 ));
 		AppSentBuff[4] = Transmitted_Data.date_time.hrs;
 		AppSentBuff[5] = Transmitted_Data.date_time.min;
-		AppSentBuff[6] = Transmitted_Data.swtich_state;
+		AppSentBuff[6] = Transmitted_Data.date_time.sec;
+		AppSentBuff[7] = Transmitted_Data.swtich_state;
 
-		HalUart_ReciveBuffer(AppSentBuff,DATA_BYTES_NUM,ModuleIdx);
+		HalUart_SendBuffer(AppSentBuff,DATA_BYTES_NUM,ModuleIdx);
 	}
 
 }
 
+/**************************************************************************************************************
+ * Public Function: App_DispAll
+ * Description: This function is used to display the structure data on the LCD.
+ * Input Parameters:
+ * 					 -App_Data_t * data: A pointer to structure that contains the data to be displayed
+ *
+ *
+ * Return:           -Not Applicable (void)
+ *
+ *
+ * Input/Output Parameters:
+ * 					-Not Applicable (void)
+ * ***************************************************************************************************************/
+/*TODO: the structure should be sent by value not by pointer
+ * because the interrupt can update it while it is not displayed yet -> Racing Condition  */
 static void App_DispAll(App_Data_t * data)
 {
 	uint8_t charcter[10];
@@ -156,6 +212,19 @@ static void App_DispAll(App_Data_t * data)
 
 }
 
+/**************************************************************************************************************
+ * Public Function: App_RecieveDone
+ * Description: This function is used as a call back function when a successful frame is received .
+ * Input Parameters:
+ * 					 -Not Applicable (void)
+ *
+ *
+ * Return:           -Not Applicable (void)
+ *
+ *
+ * Input/Output Parameters:
+ * 					-Not Applicable (void)
+ * ***************************************************************************************************************/
 static void App_RecieveDone(void)
 {
 
@@ -170,19 +239,60 @@ static void App_RecieveDone(void)
 		IsDataRecieved = 1;
 	}
 }
+
+/*TODO: Don't Register this function from the beginning,
+ *  	Register it when you communication is established  */
+/**************************************************************************************************************
+ * Public Function: App_TransmitDone
+ * Description: This function is used to as a call back function to trigger the next send.
+ * Input Parameters:
+ * 					 -Not Applicable (void)
+ *
+ *
+ * Return:           -Not Applicable (void)
+ *
+ *
+ * Input/Output Parameters:
+ * 					-Not Applicable (void)
+ * ***************************************************************************************************************/
 static void App_TransmitDone(void)
 {
 	if(SigRecieved_flag)
 		IsDataSent = 1;
 }
 
+/**************************************************************************************************************
+ * Public Function: App_stablishComm
+ * Description: This function is used to send a signature , and receive a signature.
+ * Input Parameters:
+ * 					- Not Applicable (void)
+ *
+ *
+ * Return:           -Not Applicable (void)
+ *
+ *
+ * Input/Output Parameters:
+ * 					-Not Applicable (void)
+ * ***************************************************************************************************************/
 static void App_stablishComm(void)
 {
 	HalUart_SendSig(ModuleIdx);
 	HalUart_RecieveSig(ModuleIdx);
 }
 
-
+/**************************************************************************************************************
+ * Public Function: App_Disp_init
+ * Description: This function is used to to initialize the LCD with all zero values
+ * Input Parameters:
+ * 					 -Not Applicable (void)
+ *
+ *
+ * Return:           -Not Applicable (void)
+ *
+ *
+ * Input/Output Parameters:
+ * 					-Not Applicable (void)
+ * ***************************************************************************************************************/
 static void App_Disp_init(void)
 {
 	LCD_GoTo(lcdFirstRow,0);
@@ -233,6 +343,20 @@ static void App_Disp_init(void)
 	LCD_WriteString("-");
 }
 
+/**************************************************************************************************************
+ * Public Function: itoa
+ * Description: This function is used to convert integer numbers to array of characters
+ * Input Parameters:
+ * 					 - uint32_t Copy_u32Number
+ * 					 - uint8_t *Copy_pu8NumArr
+ *
+ *
+ * Return:           -Not Applicable (void)
+ *
+ *
+ * Input/Output Parameters:
+ * 					-Not Applicable (void)
+ * ***************************************************************************************************************/
 static void itoa(uint32_t Copy_u32Number,uint8_t *Copy_pu8NumArr){
 	uint8_t  Loc_u8NumLoopIdx=0;
 	uint8_t  Loc_u8Digit=0;

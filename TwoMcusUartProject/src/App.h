@@ -8,7 +8,7 @@
 #ifndef APP_H_
 #define APP_H_
 
-#define DATA_BYTES_NUM 7
+#define DATA_BYTES_NUM 		8
 
 
 extern void App_Init(void);

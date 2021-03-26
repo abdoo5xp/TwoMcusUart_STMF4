@@ -6,7 +6,7 @@
  */
 
 #include <stdint.h>
-#include "../../Lib/bit.h"
+#include "bit.h"
 #include <diag/Trace.h>
 #include "SysTick_cfg.h"
 #include "SysTick_int.h"

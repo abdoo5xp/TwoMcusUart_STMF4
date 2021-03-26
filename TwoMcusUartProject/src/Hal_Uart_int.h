@@ -28,6 +28,7 @@ typedef struct{
 }buffer_t;
 
 typedef void (*HuartCbf) (void);
+
 HuartCbf Notify_recieve_done;
 
 uint8_t HalUart_Init(void);
@@ -35,15 +36,17 @@ uint8_t HalUart_Init(void);
 extern uint8_t HalUart_SendBuffer(uint8_t * UserBuffer,uint16_t size,Hal_Uart_Module_idx_t HalUartModule_idx);
 
 extern uint8_t HalUart_ReciveBuffer(uint8_t * UserBuffer,uint16_t size,Hal_Uart_Module_idx_t HalUartModule_idx);
+
 extern void HalUart_SetReciveCbf(HuartCbf userCbf);
 
-extern void HalUart_SetSendCbf(HuartCbf userCbf);
+extern void HalUart_SetSendCbf(HuartCbf userCbf,Hal_Uart_Module_idx_t HalUartModule_idx);
 
 extern uint8_t HalUart_ReciveRawData(uint8_t * UserBuffer,uint16_t size,Hal_Uart_Module_idx_t HalUartModule_idx);
 
 extern uint8_t HalUart_SendRawData(uint8_t * UserBuffer, uint16_t size,Hal_Uart_Module_idx_t HalUartModule_idx);
 
 extern void HalUart_SendSig(Hal_Uart_Module_idx_t idx);
+
 extern void HalUart_RecieveSig(Hal_Uart_Module_idx_t idx);
 
 #endif /* HAL_UART_INT_H_ */

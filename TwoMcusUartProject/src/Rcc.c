@@ -7,7 +7,7 @@
 
 #include <stdint.h>
 #include "diag/Trace.h"
-#include "../../Lib/bit.h"
+#include "bit.h"
 #include "Rcc_int.h"
 
 typedef struct
