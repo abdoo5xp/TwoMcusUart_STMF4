@@ -265,3 +265,7 @@ void HalUart_RecieveSig(Hal_Uart_Module_idx_t idx)
 			rx_buffer.data[SIG_BYTES_NUM] = checkSum;
 	}
 }
+
+
+
+

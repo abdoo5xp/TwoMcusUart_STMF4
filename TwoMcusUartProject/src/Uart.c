@@ -14,18 +14,30 @@
 #include "Uart_cfg.h"
 
 
-#define 	NULL 						(void*)0
+#define 	NULL 						    (void*)0
 
-#define 	USART_TXE_MASK				BIT_MASK_7
-#define 	USART_TXC_MASK				BIT_MASK_6
+#define 	USART_TXE_MASK				    BIT_MASK_7
+#define 	USART_TXC_MASK				    BIT_MASK_6
 
-#define 	USART_TXCIE_MASK			BIT_MASK_6
+#define 	USART_TXCIE_MASK			    BIT_MASK_6
 
-#define 	USART_RXNEIE_MASK			BIT_MASK_5
-#define 	USART_RXNEIE_CLEAR_MASK 	BIT_MASK_CLEAR_5
+#define 	USART_RXNEIE_MASK			    BIT_MASK_5
+#define 	USART_RXNEIE_CLEAR_MASK 	    BIT_MASK_CLEAR_5
 
-#define 	USART_RXNE_CLEAR_MASK 		BIT_MASK_CLEAR_5
-#define 	USART_RXNE_MASK 		    BIT_MASK_5
+#define 	USART_RXNE_CLEAR_MASK 		    BIT_MASK_CLEAR_5
+#define 	USART_RXNE_MASK 		        BIT_MASK_5
+
+#define 	USART_LIN_SBK_MASK				BIT_MASK_0
+#define 	USART_LIN_SBK_CLEAR_MASK		BIT_MASK_CLEAR_0
+
+#define 	USART_LIN_LBD_MASK				BIT_MASK_8
+#define 	USART_LIN_LBD_CLEAR_MASK		BIT_MASK_CLEAR_8
+
+#define 	USART_LIN_LBDIE_MASK			BIT_MASK_6
+#define 	USART_LIN_LBDIE_CLEAR_MASK		BIT_MASK_CLEAR_6
+
+#define 	USART_LIN_LINEN_MASK			BIT_MASK_14
+#define 	USART_LIN_LINEN_CLEAR_MASK		BIT_MASK_CLEAR_14
 
 typedef struct {
 	uint32_t SR;
@@ -176,13 +188,16 @@ uint8_t Usart_Init(usart_Id_e  usart_Id)
 	  usart_CR3 |= usart_instances[usart_Id].rxDmaEnable     <<  6;
  	  usart_CR3 |= usart_instances[usart_Id].interrupts.eie  <<  0;
 
+#if UART_LIN_MODE  == UART_LIN_MODE_ON
+ 	  /*Enable the LIN mode */
+ 	  usart_CR2 |= USART_LIN_LINEN_MASK;
+#endif
 
 	((volatile usart_t *)usart_instances[usart_Id].usartAddress)-> CR1 = usart_CR1;
 	((volatile usart_t *)usart_instances[usart_Id].usartAddress)-> CR2 = usart_CR2;
 	((volatile usart_t *)usart_instances[usart_Id].usartAddress)-> CR3 = usart_CR3;
 
-	((volatile usart_t *)usart_instances[usart_Id].usartAddress)->SR &= ~ USART_TXE_MASK ;
-	((volatile usart_t *)usart_instances[usart_Id].usartAddress)->SR &= ~ USART_TXC_MASK ;
+	((volatile usart_t *)usart_instances[usart_Id].usartAddress)-> SR &= ~ USART_TXC_MASK ;
 
 	return RT_SUCCESS;
 }
@@ -358,7 +373,7 @@ uint32_t Uart_RecvBuff(usart_Id_e usart_Id,uint8_t *buf,uint16_t size){
 
 /*================================================= UART_MODE_EVENT_BASED =========================================================*/
 
-#if UART_MODE   == UART_MODE_EVENT_BASED
+
 #if UART_MODE == UART_MODE_EVENT_BASED
 
 	/*TODO: make these variables arrays for multi channel working in parallel */
@@ -397,6 +412,10 @@ uint32_t Uart_SendBuff(usart_Id_e usart_Id,uint8_t *buf,uint16_t size)
 		Tx_buf[usart_Id].buffer_size   = size;
 		Tx_buf[usart_Id].buffer_counter= 1;
 
+#if UART_LIN_MODE  == UART_LIN_MODE_ON
+/*We should send the break frame her by setting the SBK bit */
+((usart_t*)usart_instances[usart_Id].usartAddress)->CR1 |= USART_LIN_SBK_MASK;
+#endif
 		/*Send the first element in the buffer, to trigger the interrupt */
 		Uart_SendData(usart_Id ,Tx_buf[usart_Id].data_buf[0]);
 		Tx_buf[usart_Id].Tx_busy = 1;
@@ -426,11 +445,16 @@ uint32_t Uart_RecvBuff(usart_Id_e usart_Id, uint8_t * recvBuff,uint16_t size){
 		Rx_buf[usart_Id].buffer_size = size;
 		Rx_buf[usart_Id].Rx_busy = 1;
 
+#if UART_LIN_MODE  == UART_LIN_MODE_ON
+		/*The LBDIE should be enabled, and its flag is cleared before enabling it  */
+		((usart_t *)usart_instances[usart_Id].usartAddress)->CR2 |= USART_LIN_LBDIE_MASK;
+
+#elif
 		/*Clear the RXNE flag in case if it received any frames and got raised */
 		((volatile usart_t *)usart_instances[usart_Id].usartAddress) -> SR  &= USART_RXNE_CLEAR_MASK ;
 		/*Enable the RXNE interrupt enable Interrupt */
 		((volatile usart_t *)usart_instances[usart_Id].usartAddress) -> CR1 |= USART_RXNEIE_MASK     ;
-
+#endif
 		return_status = RT_SUCCESS;
 	}
 
@@ -444,8 +468,8 @@ uint32_t Uart_RecvBuff(usart_Id_e usart_Id, uint8_t * recvBuff,uint16_t size){
 
 static inline void Uart_MyHandler(usart_Id_e  usart_Id)
 {
-	if(  ( ( (usart_t *)usart_instances[usart_Id].usartAddress)->CR1 & USART_TXCIE_MASK) &&
-	     ( ( (usart_t *)usart_instances[usart_Id].usartAddress)->SR & USART_TXC_MASK) )
+	if(  ( ( (volatile usart_t *)usart_instances[usart_Id].usartAddress)->CR1 & USART_TXCIE_MASK) &&
+	     ( ( (volatile usart_t *)usart_instances[usart_Id].usartAddress)->SR & USART_TXC_MASK) )
 	{
 		if(Tx_buf[usart_Id].buffer_counter < Tx_buf[usart_Id].buffer_size)
 		{
@@ -455,7 +479,7 @@ static inline void Uart_MyHandler(usart_Id_e  usart_Id)
 		else
 		{
 			Tx_buf[usart_Id].Tx_busy = 0;
-			((usart_t *) usart_instances[usart_Id].usartAddress)->SR &= ~USART_TXC_MASK;
+			((volatile usart_t *) usart_instances[usart_Id].usartAddress)->SR &= ~USART_TXC_MASK;
 
 			/*Call the user call back function */
 			if(Tx_buf[usart_Id].uart_SendCbf)
@@ -480,13 +504,37 @@ static inline void Uart_MyHandler(usart_Id_e  usart_Id)
 				/*Disable the RXNE Interrupt */
 				( (volatile usart_t *)usart_instances[usart_Id].usartAddress) -> CR1 &= USART_RXNEIE_CLEAR_MASK;
 				Rx_buf[usart_Id].Rx_busy = 0;
+
 				/*Call the user call back function */
-				if(Tx_buf[usart_Id].uart_RecvCbf){
+				if(Tx_buf[usart_Id].uart_RecvCbf)
+				{
 					Tx_buf[usart_Id].uart_RecvCbf();
 				}
 			}
 		}
 	}
+#if UART_LIN_MODE == UART_LIN_MODE_ON
+  if(
+    (((usart_t*)usart_instances[usart_Id].usartAddress)->SR & USART_LIN_LBD_MASK)&&
+	(((usart_t*)usart_instances[usart_Id].usartAddress)->CR2 & USART_LIN_LBDIE_MASK)
+	)
+    {
+	  	  	  	  	  /*Clear the LIN LBD Flag, and disable its interrupt  */
+		((volatile usart_t *)usart_instances[usart_Id].usartAddress) -> SR &= USART_LIN_LBD_CLEAR_MASK ;
+		((volatile usart_t *)usart_instances[usart_Id].usartAddress) -> CR2&= USART_LIN_LBDIE_CLEAR_MASK;
+		/*TODO:
+		 * Islam says the clearance of LBDIE should be done ,
+		 * before the function call back
+		 * and reset your values so that you start receiving from the first */
+
+					/*Clear the RXNE flag in case if it received any frames and got raised */
+		((volatile usart_t *)usart_instances[usart_Id].usartAddress) -> SR &= USART_RXNE_CLEAR_MASK ;
+					/*Enable the RXNE interrupt enable Interrupt */
+		((volatile usart_t *)usart_instances[usart_Id].usartAddress) -> CR1|= USART_RXNEIE_MASK     ;
+
+    }
+
+#endif
 }
 
 
@@ -497,7 +545,6 @@ void USART1_IRQHandler(void){
 #endif
 
 #ifdef usart_CH_2
-
 void USART2_IRQHandler(void){
 	Uart_MyHandler(usart_2);
 }
@@ -531,6 +578,7 @@ void USART6_IRQHandler(void){
 }
 
 #endif
-#endif
 
 #endif
+
+

@@ -13,6 +13,10 @@
 #define UART_MODE_EVENT_BASED		1
 #define UART_MODE					UART_MODE_EVENT_BASED
 
+#define UART_LIN_MODE_ON			0
+#define UART_LIN_MODE_OFF			1
+#define UART_LIN_MODE				UART_LIN_MODE_ON
+
 
 /*PLEASE: keep only the usart channels that you are using */
 //#define usart_CH_1				0

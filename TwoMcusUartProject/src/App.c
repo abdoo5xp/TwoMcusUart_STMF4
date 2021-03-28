@@ -24,7 +24,8 @@
 
 #define APP_SLAVE			0
 #define APP_MASTER			1
-#define APP_MCU				APP_MASTER
+#define APP_LIN_MODE		2
+#define APP_MCU				APP_LIN_MODE
 
 App_Data_t Recieved_Data;
 App_Data_t Transmitted_Data;
@@ -46,7 +47,7 @@ static uint8_t AppRecievedBuff[DATA_BYTES_NUM];
  * 			-> the frame is not received successfully.
  * 			-> that we noticed that RXNEIE flag is not enabled.
  * 		  */
-
+static void APP_UpdateLcd(void);
 static void App_RecieveDone(void);
 static void App_TransmitDone(void);
 static void App_stablishComm(void);
@@ -99,12 +100,14 @@ void App_Init(void)
 	HalUart_SetReciveCbf(App_RecieveDone);
 	HalUart_SetSendCbf(App_TransmitDone, ModuleIdx);
 
+	SwTimer_RegisterCBF(100,SWTimer_TimerMode_Periodic,APP_UpdateLcd);
 	/*Establishing the communication */
-#if APP_MCU == APP_MASTER
+#if 	APP_MCU == APP_MASTER
 	SwTimer_RegisterCBF(1000,SWTimer_TimerMode_Periodic,App_stablishComm);
 #elif	APP_MCU == APP_SLAVE
 	SwTimer_RegisterCBF(200,SWTimer_TimerMode_Periodic,App_stablishComm);
 #endif
+
 }
 
 /**************************************************************************************************************
@@ -124,6 +127,11 @@ void App_Init(void)
 void App_main(void)
 {
 	static uint16_t updateLCD;
+	/*For the first time start sending and receiving  */
+	IsDataRecieved =1;
+	IsDataSent = 1;
+//	HalUart_ReciveBuffer(AppRecievedBuff,DATA_BYTES_NUM,ModuleIdx);
+
 	if(IsDataRecieved)
 	{
 		IsDataRecieved=0;
@@ -136,12 +144,12 @@ void App_main(void)
 		Recieved_Data.date_time.sec = AppRecievedBuff[6];
 		Recieved_Data.swtich_state = AppRecievedBuff[7];
 
-		updateLCD++;
-		if(updateLCD >= 25)
-		{
-			App_DispAll(&Recieved_Data);
-			updateLCD = 0;
-		}
+//		updateLCD++;
+//		if(updateLCD >= 25)
+//		{
+//			App_DispAll(&Recieved_Data);
+//			updateLCD = 0;
+//		}
 
 		if(Recieved_Data.swtich_state == switch_pressed)
 			led_Control(LED_ALRAM,LED_ON);
@@ -155,7 +163,7 @@ void App_main(void)
 	if(IsDataSent)
 	{
 
-//		IsDataSent=0;
+		IsDataSent=0;
 		Clock_getter(&Transmitted_Data.date_time);
 		Transmitted_Data.swtich_state = Switch_GetSwitchStatus(switch_Id_0);
 
@@ -218,37 +226,42 @@ static void App_DispAll(App_Data_t * data)
 	itoa(data->date_time.Days%10,charcter);
 	LCD_WriteString(charcter);
 
-	LCD_WriteString("--");
+//	LCD_WriteString("--");
 
-	LCD_GoTo(lcdSecondRow,12);
+	LCD_GoTo(lcdFirstRow,0);
 	itoa(data->date_time.hrs/10,charcter);
 	LCD_WriteString(charcter);
 	itoa(data->date_time.hrs%10,charcter);
 	LCD_WriteString(charcter);
 
+	LCD_WriteString("-");
 
-	LCD_GoTo(lcdSecondRow,14);
+	LCD_GoTo(lcdFirstRow,3);
 	itoa(data->date_time.min/10,charcter);
 	LCD_WriteString(charcter);
 	itoa(data->date_time.min%10,charcter);
 	LCD_WriteString(charcter);
 
+	LCD_WriteString("-");
 
-	LCD_GoTo(lcdSecondRow,16);
+	LCD_GoTo(lcdFirstRow,6);
 	itoa(data->date_time.sec/10,charcter);
 	LCD_WriteString(charcter);
 	itoa(data->date_time.sec%10,charcter);
 	LCD_WriteString(charcter);
 
+//	LCD_WriteString("-");
 
-	LCD_GoTo(lcdFirstRow,14);
+
+	LCD_GoTo(lcdSecondRow,13);
 	if(data->swtich_state == switch_pressed)
 	{
+		LCD_WriteString(" ");
 		LCD_WriteString("ON");
 	}
 	else if(data->swtich_state == switch_not_pressed)
 	{
-		LCD_WriteString("OF");
+		LCD_WriteString("OFF");
 	}
 
 }
@@ -268,7 +281,7 @@ static void App_DispAll(App_Data_t * data)
  * ***************************************************************************************************************/
 static void App_RecieveDone(void)
 {
-
+#if APP_MCU != APP_LIN_MODE
 	if(!SigRecieved_flag)
 	{
 		SigRecieved_flag ++;
@@ -285,6 +298,10 @@ static void App_RecieveDone(void)
 	{
 		IsDataRecieved = 1;
 	}
+#elif APP_MCU == APP_LIN_MODE
+	IsDataRecieved = 1;
+#endif
+
 }
 
 /*TODO: Don't Register this function from the beginning,
@@ -304,8 +321,12 @@ static void App_RecieveDone(void)
  * ***************************************************************************************************************/
 static void App_TransmitDone(void)
 {
+#if APP_MCU != APP_LIN_MODE
 	if(SigRecieved_flag)
 		IsDataSent = 1;
+#else
+	IsDataSent = 1;
+#endif
 }
 
 /**************************************************************************************************************
@@ -329,7 +350,6 @@ static void App_stablishComm(void)
 #elif APP_MCU == APP_SLAVE
 	HalUart_RecieveSig(ModuleIdx);
 #endif
-
 	//	HalUart_RecieveSig(ModuleIdx);
 	//	HalUart_ReciveBuffer(AppRecievedBuff, DATA_BYTES_NUM, ModuleIdx);
 }
@@ -349,8 +369,8 @@ static void App_stablishComm(void)
  * ***************************************************************************************************************/
 static void App_Disp_init(void)
 {
-	LCD_GoTo(lcdFirstRow,0);
-	LCD_WriteString("Date");
+//	LCD_GoTo(lcdFirstRow,0);
+//	LCD_WriteString("Date");
 //	LCD_GoTo(lcdSecondRow,0);
 //	LCD_WriteString("0");
 //	LCD_WriteString("0");
@@ -367,8 +387,8 @@ static void App_Disp_init(void)
 //	LCD_WriteString("0");
 //	LCD_WriteString("0");
 
-	LCD_GoTo(lcdFirstRow,6);
-	LCD_WriteString("Clock");
+//	LCD_GoTo(lcdFirstRow,6);
+//	LCD_WriteString("Clock");
 //	LCD_WriteString("0");
 
 //	LCD_GoTo(lcdFirstRow,8);
@@ -442,9 +462,9 @@ static void itoa(uint32_t Copy_u32Number,uint8_t *Copy_pu8NumArr){
 
 }
 
-
-
-
+static void APP_UpdateLcd(void){
+	App_DispAll(&Recieved_Data);
+}
 
 
 
