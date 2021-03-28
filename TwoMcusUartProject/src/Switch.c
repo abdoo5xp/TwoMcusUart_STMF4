@@ -62,7 +62,8 @@ void Switch_CheckStatus(void){
 
 }
 
-void Switch_Init(void){
+void Switch_Init(void)
+{
 	uint8_t switch_idx;
 	for(switch_idx = 0;switch_idx < _switch_Id_Length_;switch_idx++){
 		GPIO_InitPin(&switches[switch_idx].switchPin);

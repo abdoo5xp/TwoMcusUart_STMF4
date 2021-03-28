@@ -34,11 +34,18 @@ void led_init(){
  *
  * */
 uint32_t led_Control(uint32_t led,uint8_t status){
-	if(		(status != LED_ACTIVE_HIGH && status != LED_ACTIVE_LOW )
-			|| led <= LEDS_COUNT ){
+	if(		(status != LED_ON && status != LED_OFF)
+			|| led >= LEDS_COUNT ){
 		return RT_PARAM;
 	}
-	GPIO_WritePin(led_arr[led].ledPin.port, led_arr[led].ledPin.pinNum, !(led_arr[led].ledStatus ^ status) );
+	if(!(led_arr[led].ledStatus ^ status) )
+	{
+		GPIO_WritePin(led_arr[led].ledPin.port, led_arr[led].ledPin.pinNum, GPIO_STATUS_HIGH);
+	}
+	else
+	{
+		GPIO_WritePin(led_arr[led].ledPin.port, led_arr[led].ledPin.pinNum, GPIO_STATUS_LOW);
+	}
 	return RT_SUCCESS;
 
 }

@@ -72,9 +72,6 @@ void App_Init(void)
 	/*SwTimer initialization */
 	SwTimer_init(1);
 
-	/*LCD initialization */
-	LCD_Init();
-
 	/*the uart channel that aour app will work on */
 	ModuleIdx = Hal_Uart_Module_1;
 
@@ -82,8 +79,14 @@ void App_Init(void)
 	Set_RCC_CFGR_PPRE1(RCC_CFGR_PPRE1_DIV_4);
 	Enable_RCC_AHB1_PERI(RCC_AHB1_PERI_GPIODEN);
 
+	/*Switch Init */
+	Switch_Init();
+
 	/*Led initialization */
 	led_init();
+
+	/*LCD initialization */
+	LCD_Init();
 
 	/*Display zeros as initial value for all values till a transmission is constructed */
 	App_Disp_init();
@@ -98,7 +101,7 @@ void App_Init(void)
 
 	/*Establishing the communication */
 #if APP_MCU == APP_MASTER
-	SwTimer_RegisterCBF(400,SWTimer_TimerMode_Periodic,App_stablishComm);
+	SwTimer_RegisterCBF(1000,SWTimer_TimerMode_Periodic,App_stablishComm);
 #elif	APP_MCU == APP_SLAVE
 	SwTimer_RegisterCBF(200,SWTimer_TimerMode_Periodic,App_stablishComm);
 #endif
@@ -120,6 +123,7 @@ void App_Init(void)
  * ***************************************************************************************************************/
 void App_main(void)
 {
+	static uint16_t updateLCD;
 	if(IsDataRecieved)
 	{
 		IsDataRecieved=0;
@@ -129,14 +133,20 @@ void App_main(void)
 		Recieved_Data.date_time.Years = (uint32_t)((uint32_t) AppRecievedBuff[3] << 8)| ((uint32_t) AppRecievedBuff[2]);
 		Recieved_Data.date_time.hrs = AppRecievedBuff[4];
 		Recieved_Data.date_time.min = AppRecievedBuff[5];
-		Recieved_Data.swtich_state = AppRecievedBuff[6];
+		Recieved_Data.date_time.sec = AppRecievedBuff[6];
+		Recieved_Data.swtich_state = AppRecievedBuff[7];
 
-		App_DispAll(&Recieved_Data);
+		updateLCD++;
+		if(updateLCD >= 25)
+		{
+			App_DispAll(&Recieved_Data);
+			updateLCD = 0;
+		}
 
 		if(Recieved_Data.swtich_state == switch_pressed)
-			led_Control(LED_ZAR2A,LED_ON);
+			led_Control(LED_ALRAM,LED_ON);
 		else if(Recieved_Data.swtich_state == switch_not_pressed)
-			led_Control(LED_ZAR2A,LED_OFF);
+			led_Control(LED_ALRAM,LED_OFF);
 
 		//	HalUart_ReciveBuffer(AppRecievedBuff,DATA_BYTES_NUM,ModuleIdx);
 		HalUart_SendBuffer(AppSentBuff,DATA_BYTES_NUM,ModuleIdx);
@@ -145,7 +155,7 @@ void App_main(void)
 	if(IsDataSent)
 	{
 
-		IsDataSent=0;
+//		IsDataSent=0;
 		Clock_getter(&Transmitted_Data.date_time);
 		Transmitted_Data.swtich_state = Switch_GetSwitchStatus(switch_Id_0);
 
@@ -183,20 +193,6 @@ static void App_DispAll(App_Data_t * data)
 {
 	uint8_t charcter[10];
 	LCD_GoTo(lcdSecondRow,0);
-
-	itoa(data->date_time.Days/10,charcter);
-	LCD_WriteString(charcter);
-	itoa(data->date_time.Days%10,charcter);
-	LCD_WriteString(charcter);
-
-	LCD_GoTo(lcdSecondRow,2);
-	itoa(data->date_time.Months/10,charcter);
-	LCD_WriteString(charcter);
-	itoa(data->date_time.Months%10,charcter);
-	LCD_WriteString(charcter);
-
-
-	LCD_GoTo(lcdSecondRow,4);
 	itoa((data->date_time.Years/1000),charcter);
 	LCD_WriteString(charcter);
 	itoa(((data->date_time.Years/100)%10),charcter);
@@ -206,38 +202,53 @@ static void App_DispAll(App_Data_t * data)
 	itoa(data->date_time.Years%10,charcter);
 	LCD_WriteString(charcter);
 
+	LCD_WriteString("/");
 
+	LCD_GoTo(lcdSecondRow,5);
+	itoa(data->date_time.Months/10,charcter);
+	LCD_WriteString(charcter);
+	itoa(data->date_time.Months%10,charcter);
+	LCD_WriteString(charcter);
 
+	LCD_WriteString("/");
 
 	LCD_GoTo(lcdSecondRow,8);
+	itoa(data->date_time.Days/10,charcter);
+	LCD_WriteString(charcter);
+	itoa(data->date_time.Days%10,charcter);
+	LCD_WriteString(charcter);
+
+	LCD_WriteString("--");
+
+	LCD_GoTo(lcdSecondRow,12);
 	itoa(data->date_time.hrs/10,charcter);
 	LCD_WriteString(charcter);
 	itoa(data->date_time.hrs%10,charcter);
 	LCD_WriteString(charcter);
 
 
-	LCD_GoTo(lcdSecondRow,10);
+	LCD_GoTo(lcdSecondRow,14);
 	itoa(data->date_time.min/10,charcter);
 	LCD_WriteString(charcter);
 	itoa(data->date_time.min%10,charcter);
 	LCD_WriteString(charcter);
 
 
-	LCD_GoTo(lcdSecondRow,12);
+	LCD_GoTo(lcdSecondRow,16);
 	itoa(data->date_time.sec/10,charcter);
 	LCD_WriteString(charcter);
 	itoa(data->date_time.sec%10,charcter);
 	LCD_WriteString(charcter);
 
 
-	LCD_GoTo(lcdSecondRow,14);
+	LCD_GoTo(lcdFirstRow,14);
 	if(data->swtich_state == switch_pressed)
 	{
-		LCD_WriteString("N");
+		LCD_WriteString("ON");
 	}
 	else if(data->swtich_state == switch_not_pressed)
 	{
-		LCD_WriteString("F");
+		LCD_WriteString("OF");
 	}
 
 }
@@ -314,6 +325,7 @@ static void App_stablishComm(void)
 {
 #if APP_MCU  == APP_MASTER
 	HalUart_SendSig(ModuleIdx);
+	HalUart_RecieveSig(ModuleIdx);
 #elif APP_MCU == APP_SLAVE
 	HalUart_RecieveSig(ModuleIdx);
 #endif
@@ -338,51 +350,50 @@ static void App_stablishComm(void)
 static void App_Disp_init(void)
 {
 	LCD_GoTo(lcdFirstRow,0);
-	LCD_WriteString("D");
-	LCD_GoTo(lcdSecondRow,0);
-	LCD_WriteString("0");
-	LCD_WriteString("0");
+	LCD_WriteString("Date");
+//	LCD_GoTo(lcdSecondRow,0);
+//	LCD_WriteString("0");
+//	LCD_WriteString("0");
 
-	LCD_GoTo(lcdFirstRow,2);
-	LCD_WriteString("M");
-	LCD_GoTo(lcdSecondRow,2);
-	LCD_WriteString("0");
-	LCD_WriteString("0");
+//	LCD_GoTo(lcdFirstRow,2);
+//	LCD_WriteString("M");
+//	LCD_GoTo(lcdSecondRow,2);
+//	LCD_WriteString("0");
+//	LCD_WriteString("0");
 
-	LCD_GoTo(lcdFirstRow,4);
-	LCD_WriteString("Y");
-	LCD_GoTo(lcdSecondRow,4);
-	LCD_WriteString("0");
-	LCD_WriteString("0");
+//	LCD_GoTo(lcdFirstRow,4);
+//	LCD_WriteString("D");
+//	LCD_GoTo(lcdSecondRow,4);
+//	LCD_WriteString("0");
+//	LCD_WriteString("0");
 
 	LCD_GoTo(lcdFirstRow,6);
-	LCD_GoTo(lcdSecondRow,6);
-	LCD_WriteString("0");
-	LCD_WriteString("0");
+	LCD_WriteString("Clock");
+//	LCD_WriteString("0");
 
-	LCD_GoTo(lcdFirstRow,8);
-	LCD_WriteString("H");
-	LCD_GoTo(lcdSecondRow,8);
-	LCD_WriteString("0");
-	LCD_WriteString("0");
+//	LCD_GoTo(lcdFirstRow,8);
+//	LCD_WriteString("H");
+//	LCD_GoTo(lcdSecondRow,8);
+//	LCD_WriteString("0");
+//	LCD_WriteString("0");
 
-	LCD_GoTo(lcdFirstRow,10);
-	LCD_WriteString("M");
-	LCD_GoTo(lcdSecondRow,10);
-	LCD_WriteString("0");
-	LCD_WriteString("0");
+//	LCD_GoTo(lcdFirstRow,10);
+//	LCD_WriteString("M");
+//	LCD_GoTo(lcdSecondRow,10);
+//	LCD_WriteString("0");
+//	LCD_WriteString("0");
 
-	LCD_GoTo(lcdFirstRow,12);
-	LCD_WriteString("S");
-	LCD_GoTo(lcdSecondRow,12);
-	LCD_WriteString("0");
-	LCD_WriteString("0");
+//	LCD_GoTo(lcdFirstRow,12);
+//	LCD_WriteString("S");
+//	LCD_GoTo(lcdSecondRow,12);
+//	LCD_WriteString("0");
+//	LCD_WriteString("0");
 
-	LCD_GoTo(lcdFirstRow,14);
-	LCD_WriteString("L");
-	LCD_GoTo(lcdSecondRow,14);
-	LCD_WriteString("-");
-	LCD_WriteString("-");
+	LCD_GoTo(lcdFirstRow,13);
+	LCD_WriteString("LED");
+//	LCD_GoTo(lcdSecondRow,14);
+//	LCD_WriteString("-");
+//	LCD_WriteString("-");
 }
 
 /**************************************************************************************************************

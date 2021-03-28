@@ -172,7 +172,7 @@ uint8_t HalUart_ReciveBuffer(uint8_t * UserBuffer,uint16_t size,Hal_Uart_Module_
 	if(state == RT_SUCCESS)
 	{
 		rx_buffer.data = UserBuffer;
-//		rx_buffer.idx  = HalUartModule_idx;
+		rx_buffer.idx  = HalUartModule_idx;
 		rx_buffer.size = size;
 	}
 	return state;
@@ -180,7 +180,7 @@ uint8_t HalUart_ReciveBuffer(uint8_t * UserBuffer,uint16_t size,Hal_Uart_Module_
 
 static void recive_done()
 {
-	trace_printf("File -> %s , Line -> %d , Sig_receivingFlag = %d  ",__FILE__,__LINE__,Sig_receivingFlag);
+//	trace_printf("File -> %s , Line -> %d , Sig_receivingFlag = %d  ",__FILE__,__LINE__,Sig_receivingFlag);
 	uint8_t state;
 	/*
 	 * Hal_recBuffer is the deconstructed buffer
@@ -199,6 +199,18 @@ static void recive_done()
 	{
 		Sig_receivingFlag = 0;
 		Notify_recieve_done();
+	}
+	/*If the packet is discarded re try to receive a new buffer */
+	else
+	{
+		if(Sig_receivingFlag)
+		{
+			HalUart_RecieveSig(rx_buffer.idx);
+		}
+		else
+		{
+			HalUart_ReciveBuffer(rx_buffer.data, rx_buffer.size, rx_buffer.idx);
+		}
 	}
 }
 
@@ -248,7 +260,7 @@ void HalUart_RecieveSig(Hal_Uart_Module_idx_t idx)
 			 * */
 			checkSum = calc_checkSum(Sig,SIG_BYTES_NUM);
 			rx_buffer.data = Hal_Uart_Sig_Recv_Buffer;
-//			rx_buffer.idx = idx;
+			rx_buffer.idx = idx;
 			rx_buffer.size = SIG_BYTES_NUM + 1;
 			rx_buffer.data[SIG_BYTES_NUM] = checkSum;
 	}
